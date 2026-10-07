@@ -1,68 +1,65 @@
-# Finality — Product Guide
+# Finality — Product Guide (Cardano)
 
 ## Product
 
-Finality is a pay-per-result market-intelligence service for people and autonomous agents. A browser user connects a non-custodial **Cardano** wallet (CIP-30); an agent supplies its own signer. Both call the same catalog of HTTP resources and pay the displayed **USDM** amount through **x402**. The merchant verifies and settles in-process with `@odatano/x402` on **Cardano Preprod** (`cardano:preprod`, asset `lovelace`) before Finality runs the provider operation.
+Finality is pay-per-result **market intelligence on Cardano**. Humans connect a non-custodial wallet (**CIP-30**: Lace or Nami on **Preprod**). Agents use the same HTTP catalog with their own Cardano signer. Each call pays the quoted **ADA (lovelace)** amount through **x402** before the merchant runs the handler.
 
-The application never receives a wallet mnemonic or private key. Browser signing uses CIP-30 (`lib/cardano`). Supported wallets in the UI: **Lace** and **Nami** on Preprod. The merchant builds an unsigned payment; the wallet signs; `@odatano/x402` completes the 402 → pay → retry loop.
+Settlement is **in-process** on the merchant: `@odatano/x402` + **Blockfrost** on **`cardano:preprod`**. The app never receives a mnemonic or private key.
 
 ## Run the product
 
 ```bash
 npm install
-npm run dev
+cp .env.example .env.local && cp .env.example x402-server/.env
+# BLOCKFROST_API_KEY + X402_PAYTO_ADDRESS in both
+
+npm run dev:all    # merchant :4021 + UI :3000
 ```
 
 | Surface | URL |
 |---|---|
-| Landing | [https://finality.accuracy.wtf](https://finality.accuracy.wtf) (local: `http://localhost:3000`) |
-| Explore dashboard | [https://finality.accuracy.wtf/explore](https://finality.accuracy.wtf/explore) |
-| Merchant health | [https://finality-x402-backend.onrender.com/health](https://finality-x402-backend.onrender.com/health) |
-| Agent catalog | [https://finality-x402-backend.onrender.com/v1/catalog](https://finality-x402-backend.onrender.com/v1/catalog) |
-| OpenAPI | [https://finality-x402-backend.onrender.com/v1/openapi.json](https://finality-x402-backend.onrender.com/v1/openapi.json) |
+| Landing | http://localhost:3000 |
+| Explore | http://localhost:3000/explore |
+| Run paid calls | http://localhost:3000/explore/run |
+| Live payTo feed | http://localhost:3000/explore/live |
+| Merchant health | http://127.0.0.1:4021/health |
+| Catalog | http://127.0.0.1:4021/v1/catalog |
+| OpenAPI | http://127.0.0.1:4021/v1/openapi.json |
 
-The frontend calls `/api/x402/*`, a same-origin proxy to the merchant, preserving x402 payment headers.
+The UI calls **`/api/x402/*`**, a same-origin proxy that preserves x402 payment headers.
+
+Hosted deployments may use different merchant URLs; local development should set **`X402_SERVER_URL=http://127.0.0.1:4021`**.
 
 ## User journey
 
-1. Open the landing page and choose **Open dashboard**.
-2. **Connect wallet** — Lace or Nami on **Preprod**.
-3. Select a resource. The explorer shows the request example and USDM price.
-4. Choose **Pay now** and approve the payment in the wallet.
-5. Inspect the result, live/synthetic status, and settlement receipt.
+1. Open **Explore** and **Connect wallet** (Lace / Nami, **Preprod**).
+2. Pick an endpoint (Run or Endpoints tab). Catalog shows **ADA** price and example request.
+3. **Pay now** — wallet signs the lovelace payment built by `/pay/intent`.
+4. Read JSON result, check `meta.synthetic`, and save the **PAYMENT-RESPONSE** receipt.
+5. Optional: **Live** tab shows on-chain hits to the merchant **payTo** address via Blockfrost.
 
-The wallet needs Preprod ADA (enough lovelace for the route price plus fees).
+Fund the wallet with **Preprod ADA** (route price + fees).
 
 ## Agent journey
 
-1. Read `/v1/catalog` or `/v1/openapi.json`.
-2. Request the resource without payment → HTTP `402` + `PAYMENT-REQUIRED`.
-3. Build/sign the exact Cardano payment (merchant `/pay/intent` + CIP-30 or agent key).
-4. Retry with payment proof.
-5. Consume the JSON envelope and keep `PAYMENT-RESPONSE` as the receipt.
+1. `GET /v1/catalog` or `/v1/openapi.json`.
+2. Call a paid path without payment → **402** + **`PAYMENT-REQUIRED`** (`cardano:preprod`, `lovelace`).
+3. `POST /pay/intent` or build tx with your signer; sign exact requirement.
+4. Retry with **`PAYMENT-SIGNATURE`**.
+5. Parse JSON envelope; store **`PAYMENT-RESPONSE`** as receipt.
 
 ## Paid resources
 
-| Resource | Approx. price | Primary source | Useful result |
-|---|---:|---|---|
-| `GET /v1/market/quotes` | 0.15 USDM | Binance spot REST | Price, 24h change, volume |
-| `GET /v1/market/assets` | 0.15 USDM | Supported universe | Normalized symbol |
-| `POST /v1/market/candles` | 0.25 USDM | Binance klines | OHLCV history |
-| `GET /v1/market/trending` | 0.20 USDM | Binance, ranked | Liquid-asset snapshot |
-| `GET /v1/market/fear-greed` | 0.10 USDM | Alternative.me | Sentiment index |
-| `POST /v1/signals` | 1.85 USDM | Candles + LLM | BUY/SELL/HOLD + regime |
-| `POST /v1/technicals` | 1.85 USDM | Candles + LLM | SMA, RSI, momentum |
-| `POST /v1/analysis/report` | 3.10 USDM | Combined + LLM | Technical + risk |
-| `POST /v1/analysis/volume` | 1.00 USDM | Volume calc + LLM | Participation / spikes |
-| `POST /v1/analysis/events` | 1.85 USDM | OHLCV + LLM | Price events |
-| `POST /v1/backtest` | 3.10 USDM | MA simulation + LLM | Equity / trades |
-| `POST /v1/agent/decision` | 2.40 USDM | Risk rules + LLM | Action + confidence |
-| `POST /v1/agent/briefing` | 3.10 USDM | Summary + LLM | Bias / regime |
-| `POST /v1/agent/strategy/parse` | 2.40 USDM | LLM parse | Validated MA rules |
-| `POST /v1/ai/chat` | 4.00 USDM | Gemini / Groq / Ollama | Analyst answer |
-| Cardano on-chain catalog | 0.10–0.45 USDM | Blockfrost, Koios, Maestro, Nexus, Ogmios, UTxORPC | Address, assets, tip, mempool |
+Prices are defined in **`x402-server/registry.ts`** (typically **0.01–0.10 ADA** per route in the current catalog). Always use **`GET /v1/catalog`** for authoritative amounts.
 
-Exact prices and paths: see [api-endpoints.md](./api-endpoints.md) and `/v1/catalog`.
+| Category | Example paths | Data source |
+|---|---|---|
+| Market | `/v1/market/quotes`, `candles`, `trending`, `fear-greed` | Binance, Alternative.me |
+| Intelligence | `/v1/signals`, `/v1/technicals`, `/v1/analysis/*`, `/v1/backtest` | Candles + LLM / deterministic fallback |
+| Agents / AI | `/v1/agent/*`, `/v1/ai/chat` | Rules + LLM |
+| Cardano | `/v1/onchain/cardano/*` | Blockfrost (Preprod) |
+
+See [api-endpoints.md](./api-endpoints.md) for the full route list.
 
 ## Result contract
 
@@ -84,19 +81,19 @@ Exact prices and paths: see [api-endpoints.md](./api-endpoints.md) and `/v1/cata
   "payment": {
     "network": "cardano:preprod",
     "asset": "lovelace",
-    "settlementId": "receipt"
+    "settlementId": "tx-hash-or-receipt"
   }
 }
 ```
 
-Clients must respect `meta.synthetic` / `meta.fallback`; never treat synthetic data as live truth.
+Respect **`meta.synthetic`** — do not treat fallback data as live market truth.
 
 ## Provider fallback
 
 ```env
 DATA_MODE=auto
 ALLOW_MOCK_FALLBACK=true
-LLM_PROVIDER=gemini
+LLM_PROVIDER=groq
 ```
 
 | Failure | Behavior |
@@ -104,21 +101,21 @@ LLM_PROVIDER=gemini
 | LLM quota / outage | Groq → Ollama → deterministic fields |
 | Binance unavailable | Schema-valid market fixture |
 | Alternative.me unavailable | Sentiment fixture |
-| Chain data provider unavailable | Schema-valid on-chain fixture |
-
-Synthetic responses set `meta.synthetic: true` and a `fallbackReason`.
+| Blockfrost unavailable | Schema-valid on-chain fixture |
 
 ## Data limitations
 
-- Public market routes are not authenticated trading.
-- Backtests exclude fees, slippage, and market impact.
-- On-chain DeFi-style routes report observed activity only — no invented TVL/liquidity.
+- Market routes are not exchange trading APIs.
+- Backtests omit fees, slippage, and impact.
+- On-chain routes report observed chain state only.
 - AI output is analysis, not financial advice.
 
 ## Verification
 
 ```bash
-npx tsc --noEmit
+npm run check:discovery
 npm run test
 npm run build
 ```
+
+Architecture: [architecture.md](./architecture.md).

@@ -12,7 +12,8 @@ const TABS: { href: string; label: string; n: string; exact?: boolean }[] = [
   { href: '/explore/run', label: 'Run', n: '02' },
   { href: '/explore/endpoints', label: 'Endpoints', n: '03' },
   { href: '/explore/transactions', label: 'Transactions', n: '04' },
-  { href: '/explore/settings', label: 'Settings', n: '05' },
+  { href: '/explore/live', label: 'Live', n: '05' },
+  { href: '/explore/settings', label: 'Settings', n: '06' },
 ]
 
 export function DashboardShell({ children }: { children: React.ReactNode }) {

@@ -1,31 +1,43 @@
-# Finality Market Intelligence API
+# Finality Market Intelligence API (Cardano)
 
-Merchant: local `x402-server` (default `http://127.0.0.1:4021`). UI proxies via `/api/x402`.
+Merchant: local **`x402-server`** (`http://127.0.0.1:4021`). Explore UI proxies via **`/api/x402`**.
+
+**Network:** `cardano:preprod` · **Asset:** `lovelace` (ADA) · **Scheme:** x402 exact
 
 ## Public
 
 | Method | Path | Purpose |
 |---|---|---|
-| GET | `/health` | Readiness |
-| GET | `/info` | Network / asset / payTo |
-| GET | `/v1/catalog` | Paid catalog |
+| GET | `/health` | Readiness, network, settlement mode |
+| GET | `/info` | `payTo`, network, asset, public URL |
+| GET | `/v1/catalog` | Paid catalog (ADA display prices) |
 | GET | `/v1/openapi.json` | OpenAPI stub |
-| POST | `/pay/intent` | Build unsigned Cardano payment (CIP-30) |
+| POST | `/pay/intent` | Build unsigned Cardano payment (CIP-30 buyers) |
 
 ## Paid (Cardano x402)
 
-Network **`cardano:preprod`**. Catalog prices are in **USDM**. Unpaid → **402** + `PAYMENT-REQUIRED`. Settlement is in-process (`@odatano/x402` + Blockfrost).
+Unpaid request → **HTTP 402** + **`PAYMENT-REQUIRED`**. After lovelace settlement → JSON body + **`PAYMENT-RESPONSE`**.
 
-| Category | Paths | Price |
+Settlement: in-process **`@odatano/x402`** + **Blockfrost** (`X402_FACILITATOR_URL` empty).
+
+| Category | Paths | Typical catalog price |
 |---|---|---:|
-| Market | `/v1/market/*` | ≥ 1 USDM |
-| Intelligence | `/v1/signals`, `/v1/technicals`, `/v1/analysis/*`, `/v1/backtest` | 2–3 USDM |
-| Agents / AI | `/v1/agent/*`, `/v1/ai/chat` | 2.5–4 USDM |
-| Cardano | `/v1/onchain/cardano/*` | 1 USDM |
+| Market | `/v1/market/*` | 0.01–0.10 ADA |
+| Intelligence | `/v1/signals`, `/v1/technicals`, `/v1/analysis/*`, `/v1/backtest` | 0.01–0.10 ADA |
+| Agents / AI | `/v1/agent/*`, `/v1/ai/chat` | 0.01–0.10 ADA |
+| Cardano on-chain | `/v1/onchain/cardano/*` | 0.01–0.10 ADA |
 
-Exact prices: `GET /v1/catalog`.
+Exact lovelace amounts: **`GET /v1/catalog`**.
 
-## Run
+## Live monitoring (UI)
+
+| Method | Path | Purpose |
+|---|---|---|
+| GET | `/api/live-txs` | Blockfrost feed of incoming txs to `X402_PAYTO_ADDRESS` |
+
+Explore: **`/explore/live`**
+
+## Run locally
 
 ```bash
 npm run dev:merchant   # :4021
@@ -35,4 +47,9 @@ npm run dev            # :3000 → proxy /api/x402
 ```bash
 curl -i 'http://127.0.0.1:4021/v1/market/quotes?symbols=BTC'
 # → HTTP 402, network cardano:preprod, asset lovelace
+```
+
+```bash
+npm run check:discovery
+# → fails if PAYMENT-REQUIRED is not Cardano lovelace
 ```

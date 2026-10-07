@@ -47,22 +47,24 @@ Never accept opaque “payment proof” strings, payer-address headers, or messa
 
 ### Service boundary
 
-- Canonical public API: merchant Hono service (`x402-server/` when present; hosted at `finality-x402-backend.onrender.com`).
-- Next.js: UI + `/api/x402/*` proxy. Handlers must call shared domain logic, not paid HTTP loops back into Finality.
+- Canonical public API: **Express** merchant (`x402-server/`, default port **4021**).
+- Next.js: UI + **`/api/x402/*`** proxy + **`/api/live-txs`** (Blockfrost payTo feed).
+- Handlers call **`lib/providers/*`** directly — no paid HTTP loop back into the merchant from Next route handlers.
 
 Typical layout:
 
 ```text
-x402-server/          # merchant (when checked out)
-  config/             # env, payment (facilitator + payTo), CORS
-  registry/           # endpoints catalog (single source of truth)
-  middleware/         # x402 gate
-  routes/             # public + paid route registration
-  handlers/ + services/
-app/                  # Next.js UI + api/x402 proxy
-lib/cardano/          # CIP-30 connector
-lib/x402/             # browser paid fetch
-x402/                 # @odatano/x402 sources / docs
+x402-server/
+  index.ts            # Express: CORS, public routes, x402Middleware, route registration
+  registry.ts         # Endpoint catalog + lovelace prices (single source of truth)
+  handlers.ts         # Provider calls + JSON envelope
+app/
+  api/x402/[...path]/ # Proxy to X402_SERVER_URL
+  api/live-txs/       # Live settlements table (Blockfrost)
+  explore/            # Dashboard including /explore/live
+lib/cardano/          # CIP-30 connector + config
+lib/x402/             # Browser paid fetch
+x402/                 # Vendored @odatano/x402 (srv middleware, facilitator, client)
 ```
 
 ### Code-organization rules

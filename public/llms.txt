@@ -1,16 +1,31 @@
-# Finality Market Intelligence
+# Finality Market Intelligence (Cardano)
 
-> Agent- and user-accessible market, AI, and Cardano on-chain intelligence — paid per result in ADA via x402.
+> Pay-per-call market, AI, and Cardano on-chain APIs. Settlement: ADA (lovelace) on Cardano Preprod via x402.
+
+## Cardano payment rail
+- Network: cardano:preprod
+- Asset: lovelace (ADA)
+- Protocol: x402 v2 exact scheme (@odatano/x402)
+- Wallets: CIP-30 (Lace, Nami on Preprod)
+- Settlement: in-process localFacilitator + Blockfrost (no external facilitator URL)
 
 ## Platform
 - Website: https://finality.accuracy.wtf
-- API: https://finality-x402-backend.onrender.com
-- Settlement: in-process @odatano/x402 (Cardano Preprod, lovelace)
-- Network: Cardano Preprod (`cardano:preprod`) · Asset: lovelace (ADA)
-- Protocol: x402 exact · Client: CIP-30 (Lace / Nami)
-- Tags: finality, x402, cardano
+- Local UI: http://localhost:3000/explore
+- Local merchant: http://127.0.0.1:4021
+- Proxy: /api/x402 → merchant
 
-## Docs
-- [Catalog](https://finality-x402-backend.onrender.com/v1/catalog)
-- [OpenAPI](https://finality-x402-backend.onrender.com/v1/openapi.json)
-- [Explore UI](https://finality.accuracy.wtf/explore)
+## Docs (repo)
+- README.md
+- docs/architecture.md
+- docs/final-product.md
+- docs/api-endpoints.md
+- lib/cardano/README.md
+
+## Discovery
+- GET /v1/catalog — prices and operation IDs
+- GET /v1/openapi.json
+- POST /pay/intent — unsigned tx for CIP-30 signTx
+
+## Tags
+finality, cardano, x402, cip-30, blockfrost, preprod, lovelace, pay-per-call, agents

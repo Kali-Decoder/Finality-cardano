@@ -522,10 +522,58 @@ function ChatAnswer({ answer }: { answer: string; generatedByModel?: boolean }) 
   )
 }
 
+function DemoPingView({ data }: { data: Record<string, unknown> }) {
+  return (
+    <div className="space-y-4">
+      <div className="border border-border bg-[color-mix(in_oklab,var(--accent)_18%,transparent)] p-5">
+        <div className="flex flex-wrap items-center gap-2">
+          <Badge value={data.ok ? 'VALIDATED' : 'INVALID'}>{data.ok ? 'OK' : 'Failed'}</Badge>
+          <span className="text-[11px] uppercase tracking-wider text-muted-foreground mono">demo.ping</span>
+        </div>
+        <p className="mt-3 text-base font-semibold text-foreground leading-relaxed">
+          {String(data.message ?? 'Demo ping')}
+        </p>
+        {typeof data.tip === 'string' && (
+          <p className="mt-2 text-sm text-muted-foreground leading-relaxed">{data.tip}</p>
+        )}
+      </div>
+      {isRecord(data.echo) && (
+        <Section title="Echo">
+          <ObjectMetrics data={data.echo as Record<string, unknown>} />
+          <NestedBlocks data={data.echo as Record<string, unknown>} />
+        </Section>
+      )}
+    </div>
+  )
+}
+
+function TokenPricesView({ data }: { data: Record<string, unknown> }) {
+  const entries = Object.entries(data).map(([id, price]) => ({
+    id,
+    price: typeof price === 'number' || typeof price === 'string' ? price : JSON.stringify(price),
+  }))
+  return (
+    <div className="space-y-4">
+      <div className="grid sm:grid-cols-3 gap-3">
+        <MetricCard label="Tokens" value={String(entries.length)} />
+        <MetricCard label="Quoted in" value="USD" />
+        <MetricCard label="Source" value="Market provider" />
+      </div>
+      <Section title="Token prices" action={<span className="text-[11px] text-muted-foreground">{entries.length} ids</span>}>
+        <DataTable rows={entries} />
+      </Section>
+    </div>
+  )
+}
+
 function presentByOperation(operationId: string | undefined, data: unknown): ReactNode {
   if (data == null) return <div className="text-sm text-muted-foreground">No data payload.</div>
 
-  // Arrays at the root (quotes, assets, trending, fearGreed, candles)
+  if (operationId === 'demo.ping' && isRecord(data)) {
+    return <DemoPingView data={data} />
+  }
+
+  // Arrays at the root (quotes, assets, trending, fearGreed, candles, categories)
   if (Array.isArray(data)) {
     const rows = data.filter(isRecord) as Record<string, unknown>[]
     if (operationId === 'market.fearGreed' || (rows[0] && 'classification' in rows[0] && 'value' in rows[0])) {
@@ -549,8 +597,33 @@ function presentByOperation(operationId: string | undefined, data: unknown): Rea
         </div>
       )
     }
+    if (operationId === 'market.quotes' || (rows[0] && 'symbol' in rows[0] && 'price' in rows[0] && !('rank' in rows[0]))) {
+      const top = rows[0]
+      return (
+        <div className="space-y-4">
+          {top && (
+            <div className="grid sm:grid-cols-3 gap-3">
+              <MetricCard label="Top symbol" value={String(top.symbol ?? '—')} />
+              <MetricCard label="Price" value={formatValue('price', top.price)} />
+              <MetricCard label="24h change" value={formatValue('change24h', top.change24h)} accent={Number(top.change24h) >= 0 ? 'text-foreground' : 'text-destructive'} />
+            </div>
+          )}
+          <Section title="Live quotes" action={<span className="text-[11px] text-muted-foreground">{rows.length} symbols</span>}>
+            <DataTable rows={rows} />
+          </Section>
+        </div>
+      )
+    }
+    const title =
+      operationId === 'market.trending'
+        ? 'Trending assets'
+        : operationId === 'market.assets'
+          ? 'Matched assets'
+          : operationId === 'market.categories'
+            ? 'Coin categories'
+            : 'Results'
     return (
-      <Section title={operationId === 'market.trending' ? 'Trending assets' : operationId === 'market.assets' ? 'Matched assets' : 'Results'} action={<span className="text-[11px] text-muted-foreground">{rows.length} items</span>}>
+      <Section title={title} action={<span className="text-[11px] text-muted-foreground">{rows.length} items</span>}>
         <DataTable rows={rows} />
       </Section>
     )
@@ -558,6 +631,13 @@ function presentByOperation(operationId: string | undefined, data: unknown): Rea
 
   if (!isRecord(data)) {
     return <div className="text-sm text-foreground mono break-all">{String(data)}</div>
+  }
+
+  if (operationId === 'market.tokenPrices' || Object.values(data).every((v) => typeof v === 'number' || typeof v === 'string')) {
+    // tokenPrices returns { [id]: usdPrice }
+    if (operationId === 'market.tokenPrices' || (!('ok' in data) && !('address' in data) && !('height' in data) && Object.keys(data).length > 0 && Object.values(data).every((v) => typeof v === 'number' || (typeof v === 'string' && !Number.isNaN(Number(v)))))) {
+      if (operationId === 'market.tokenPrices') return <TokenPricesView data={data} />
+    }
   }
 
   const modelAnswer =
@@ -892,6 +972,11 @@ export function sampleResultFor(operationId: string): ResultEnvelope {
   }
 
   const samples: Record<string, unknown> = {
+    'demo.ping': {
+      ok: true,
+      message: 'Finality demo ping — payment accepted on Cardano Preprod',
+      tip: 'Use this route from Explore → Run to test Lace CIP-30 + x402 settle.',
+    },
     'market.quotes': [
       { symbol: 'BTC', price: 68420.55, change24h: 1.84, volume24h: 2_450_000_000 },
       { symbol: 'ETH', price: 3421.12, change24h: -0.62, volume24h: 980_000_000 },

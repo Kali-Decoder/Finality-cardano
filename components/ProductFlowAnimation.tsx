@@ -51,12 +51,12 @@ const PROVIDERS: {
   top: string
   size: 'sm' | 'md' | 'lg'
 }[] = [
-  { id: 'blockfrost', label: 'Blockfrost', plan: PROVIDER_PLANS[0], left: '8%', top: '4%', size: 'lg' },
-  { id: 'koios', label: 'Koios', plan: PROVIDER_PLANS[1], left: '54%', top: '12%', size: 'md' },
-  { id: 'maestro', label: 'Maestro', plan: PROVIDER_PLANS[2], left: '16%', top: '30%', size: 'md' },
-  { id: 'nexus', label: 'Nexus', plan: PROVIDER_PLANS[5], left: '56%', top: '42%', size: 'lg' },
-  { id: 'ogmios', label: 'Ogmios', plan: PROVIDER_PLANS[6], left: '6%', top: '58%', size: 'md' },
-  { id: 'utxorpc', label: 'UTxORPC', plan: PROVIDER_PLANS[4], left: '48%', top: '74%', size: 'lg' },
+  { id: 'blockfrost', label: 'Blockfrost', plan: PROVIDER_PLANS[0], left: '10%', top: '3%', size: 'lg' },
+  { id: 'koios', label: 'Koios', plan: PROVIDER_PLANS[1], left: '52%', top: '10%', size: 'md' },
+  { id: 'maestro', label: 'Maestro', plan: PROVIDER_PLANS[2], left: '18%', top: '28%', size: 'md' },
+  { id: 'nexus', label: 'Nexus', plan: PROVIDER_PLANS[5], left: '58%', top: '40%', size: 'lg' },
+  { id: 'ogmios', label: 'Ogmios', plan: PROVIDER_PLANS[6], left: '8%', top: '56%', size: 'md' },
+  { id: 'utxorpc', label: 'UTxORPC', plan: PROVIDER_PLANS[4], left: '50%', top: '72%', size: 'lg' },
 ]
 
 /** Right: orgs / projects — circular, scattered (every org has ≥1 endpoint). */
@@ -68,46 +68,46 @@ const ORGS: {
   top: string
   size: 'sm' | 'md' | 'lg'
 }[] = [
-  { id: 'desk', label: 'Trading Desk', Icon: Building2, left: '4%', top: '1%', size: 'md' },
+  { id: 'desk', label: 'Trading', Icon: Building2, left: '4%', top: '1%', size: 'md' },
   { id: 'hedge', label: 'Hedge Fund', Icon: Landmark, left: '42%', top: '0%', size: 'sm' },
   { id: 'exchange', label: 'Exchange', Icon: Store, left: '76%', top: '3%', size: 'sm' },
   { id: 'defi', label: 'DeFi Protocol', Icon: Layers, left: '58%', top: '14%', size: 'md' },
-  { id: 'agent', label: 'Agent Swarm', Icon: Bot, left: '14%', top: '16%', size: 'sm' },
+  { id: 'agent', label: 'Agent', Icon: Bot, left: '14%', top: '16%', size: 'sm' },
   { id: 'lab', label: 'Research Lab', Icon: Rocket, left: '82%', top: '22%', size: 'md' },
-  { id: 'quant', label: 'Quant Shop', Icon: Cpu, left: '32%', top: '28%', size: 'sm' },
-  { id: 'fintech', label: 'Fintech App', Icon: Wallet, left: '6%', top: '38%', size: 'md' },
+  { id: 'quant', label: 'Quant', Icon: Cpu, left: '32%', top: '28%', size: 'sm' },
+  { id: 'fintech', label: 'Fintech', Icon: Wallet, left: '6%', top: '38%', size: 'md' },
   { id: 'mm', label: 'Market Maker', Icon: Briefcase, left: '68%', top: '40%', size: 'sm' },
-  { id: 'infra', label: 'Infra Team', Icon: Factory, left: '40%', top: '48%', size: 'sm' },
+  { id: 'infra', label: 'Treasury', Icon: Factory, left: '40%', top: '48%', size: 'sm' },
   { id: 'custody', label: 'Custody Desk', Icon: Shield, left: '84%', top: '52%', size: 'md' },
-  { id: 'dao', label: 'DAO Treasury', Icon: Building2, left: '18%', top: '58%', size: 'sm' },
+  { id: 'dao', label: 'DAO', Icon: Building2, left: '18%', top: '58%', size: 'sm' },
   { id: 'wallet', label: 'Wallet Co', Icon: Globe2, left: '54%', top: '64%', size: 'sm' },
   { id: 'studio', label: 'Game Studio', Icon: Sparkles, left: '78%', top: '74%', size: 'sm' },
   { id: 'nft', label: 'NFT Market', Icon: Store, left: '8%', top: '76%', size: 'sm' },
-  { id: 'bank', label: 'Onchain Bank', Icon: Landmark, left: '36%', top: '84%', size: 'md' },
+  { id: 'bank', label: 'Chain Bank', Icon: Landmark, left: '36%', top: '84%', size: 'md' },
 ]
 
 /** Endpoint catalog — assigned round-robin so every org gets connections. */
 const ENDPOINT_POOL: { endpoint: string; price: string }[] = [
-  { endpoint: 'market.quotes', price: '1 ADA' },
-  { endpoint: 'market.candles', price: '1 ADA' },
-  { endpoint: 'market.trending', price: '1 ADA' },
-  { endpoint: 'market.tokenPrices', price: '1 ADA' },
-  { endpoint: 'market.fearGreed', price: '1 ADA' },
-  { endpoint: 'market.categories', price: '1 ADA' },
-  { endpoint: 'intelligence.signals', price: '2 ADA' },
-  { endpoint: 'intelligence.technicals', price: '2 ADA' },
-  { endpoint: 'intelligence.report', price: '3 ADA' },
-  { endpoint: 'intelligence.volume', price: '2 ADA' },
-  { endpoint: 'intelligence.events', price: '2 ADA' },
-  { endpoint: 'agent.decision', price: '2.5 ADA' },
-  { endpoint: 'agent.briefing', price: '3 ADA' },
-  { endpoint: 'agent.strategyParse', price: '2.5 ADA' },
-  { endpoint: 'ai.chat', price: '4 ADA' },
-  { endpoint: 'onchain.cardanoTip', price: '1 ADA' },
-  { endpoint: 'onchain.cardanoAddress', price: '1 ADA' },
-  { endpoint: 'onchain.cardanoPortfolio', price: '1 ADA' },
-  { endpoint: 'onchain.cardanoHealth', price: '1 ADA' },
-  { endpoint: 'onchain.cardanoAsset', price: '1 ADA' },
+  { endpoint: 'market.quotes', price: '1 USDM' },
+  { endpoint: 'market.candles', price: '1 USDM' },
+  { endpoint: 'market.trending', price: '1 USDM' },
+  { endpoint: 'market.tokenPrices', price: '1 USDM' },
+  { endpoint: 'market.fearGreed', price: '1 USDM' },
+  { endpoint: 'market.categories', price: '1 USDM' },
+  { endpoint: 'intelligence.signals', price: '2 USDM' },
+  { endpoint: 'intelligence.technicals', price: '2 USDM' },
+  { endpoint: 'intelligence.report', price: '3 USDM' },
+  { endpoint: 'intelligence.volume', price: '2 USDM' },
+  { endpoint: 'intelligence.events', price: '2 USDM' },
+  { endpoint: 'agent.decision', price: '2.5 USDM' },
+  { endpoint: 'agent.briefing', price: '2.5 USDM' },
+  { endpoint: 'agent.strategyParse', price: '2.5 USDM' },
+  { endpoint: 'ai.chat', price: '4 USDM' },
+  { endpoint: 'onchain.cardanoTip', price: '1 USDM' },
+  { endpoint: 'onchain.cardanoAddress', price: '1 USDM' },
+  { endpoint: 'onchain.cardanoPortfolio', price: '1 USDM' },
+  { endpoint: 'onchain.cardanoHealth', price: '1 USDM' },
+  { endpoint: 'onchain.cardanoAsset', price: '1 USDM' },
 ]
 
 /** Exactly 2 endpoint lines per org — nothing left empty. */
@@ -146,7 +146,7 @@ const PHASES = [
   },
   {
     title: 'Agents pay only when they request',
-    desc: 'No monthly seat for your org. Cardano x402 settles the exact ADA price per call.',
+    desc: 'No monthly seat for your org. Cardano x402 settles the exact USDM price per call.',
   },
 ]
 
@@ -253,17 +253,34 @@ function CircleNode({
   nodeRef: (el: HTMLDivElement | null) => void
 }) {
   const px = SIZE_PX[size]
+  const floatAmp = side === 'in' ? 5 : 3.5
   return (
     <motion.div
       ref={nodeRef}
-      initial={reduce ? false : { opacity: 0, scale: 0.85 }}
+      initial={reduce ? false : { opacity: 0, scale: 0.72 }}
       whileInView={{ opacity: 1, scale: 1 }}
-      viewport={{ once: true, amount: 0.2 }}
-      transition={{ delay: index * 0.07, duration: 0.45 }}
+      viewport={{ once: true, amount: 0.15 }}
+      animate={
+        reduce
+          ? undefined
+          : {
+              y: [0, -floatAmp, 0, floatAmp * 0.6, 0],
+            }
+      }
+      transition={{
+        opacity: { delay: index * 0.05, duration: 0.55, ease: [0.22, 1, 0.36, 1] },
+        scale: { delay: index * 0.05, duration: 0.55, ease: [0.22, 1, 0.36, 1] },
+        y: {
+          delay: 0.7 + index * 0.1,
+          duration: side === 'in' ? 5.2 + (index % 3) * 0.45 : 6.4 + (index % 4) * 0.35,
+          repeat: Infinity,
+          ease: 'easeInOut',
+        },
+      }}
       style={{ ...style, width: px, height: px }}
       aria-label={label}
-      title={logo ? label : undefined}
-      className="absolute z-[2] flex flex-col items-center justify-center rounded-full border border-border bg-background text-center shadow-[0_10px_28px_rgba(0,0,0,0.08),0_2px_8px_rgba(0,0,0,0.04)]"
+      title={label}
+      className="absolute z-[2] flex flex-col items-center justify-center rounded-full border border-border/80 bg-background text-center shadow-[0_10px_28px_rgba(0,0,0,0.08),0_2px_8px_rgba(0,0,0,0.04)] will-change-transform"
     >
       {logo ? (
         <span className="relative h-[72%] w-[72%] overflow-hidden rounded-full ring-1 ring-black/10">
@@ -278,7 +295,11 @@ function CircleNode({
       ) : (
         <>
           {Icon ? <Icon className="h-4 w-4 text-foreground/80" strokeWidth={1.5} /> : null}
-          <span className="mt-1 max-w-[92%] px-1 text-center text-[9px] font-semibold leading-tight sm:text-[10px]">
+          <span
+            className={`max-w-[92%] px-1 text-center font-semibold leading-tight ${
+              Icon ? 'mt-1 text-[9px] sm:text-[10px]' : 'text-[10px] sm:text-[11px]'
+            }`}
+          >
             {label}
           </span>
           {sub ? (
@@ -289,12 +310,30 @@ function CircleNode({
         </>
       )}
       {side === 'in' && plan ? (
-        <span className="pointer-events-none absolute -bottom-1 left-1/2 z-[3] max-w-[5.5rem] -translate-x-1/2 truncate rounded-full bg-background px-1.5 py-0.5 font-mono text-[7px] uppercase tracking-wide text-muted-foreground ring-1 ring-border line-through decoration-foreground/55 sm:text-[8px]">
+        <span className="pointer-events-none absolute -bottom-1 left-1/2 z-[3] max-w-[5.5rem] -translate-x-1/2 truncate rounded-full bg-background/95 px-1.5 py-0.5 font-mono text-[7px] uppercase tracking-wide text-muted-foreground ring-1 ring-border line-through decoration-foreground/45 sm:text-[8px]">
           {plan}
         </span>
       ) : null}
     </motion.div>
   )
+}
+
+type PacketSpec = { r: number; dur: number; offset: number; glow?: boolean }
+
+function packetsForPath(isOutbound: boolean, index: number): PacketSpec[] {
+  if (isOutbound) {
+    const base = 3.1 + (index % 5) * 0.22
+    return [
+      { r: 4.2, dur: base, offset: 0, glow: true },
+      { r: 2.8, dur: base * 1.05, offset: base * 0.33 },
+      { r: 3.4, dur: base * 0.95, offset: base * 0.66, glow: true },
+    ]
+  }
+  const base = 3.6 + (index % 3) * 0.28
+  return [
+    { r: 3.6, dur: base, offset: 0, glow: true },
+    { r: 2.6, dur: base * 1.08, offset: base * 0.5 },
+  ]
 }
 
 function CurvedFlows({
@@ -317,63 +356,94 @@ function CurvedFlows({
       viewBox={`0 0 ${size.w} ${size.h}`}
     >
       <defs>
+        <filter id="packet-glow" x="-80%" y="-80%" width="260%" height="260%">
+          <feGaussianBlur in="SourceGraphic" stdDeviation="2.2" result="blur" />
+          <feMerge>
+            <feMergeNode in="blur" />
+            <feMergeNode in="SourceGraphic" />
+          </feMerge>
+        </filter>
         <marker
           id="flow-arrow"
           viewBox="0 0 10 10"
           refX="9"
           refY="5"
-          markerWidth="7"
-          markerHeight="7"
+          markerWidth="6"
+          markerHeight="6"
           orient="auto-start-reverse"
         >
-          <path d="M 0 1.2 L 9 5 L 0 8.8 Z" fill="#737373" />
+          <path d="M 0 1.2 L 9 5 L 0 8.8 Z" fill="#9CA3AF" />
         </marker>
       </defs>
 
-      {paths.map(p => {
-        const stroke = p.color ?? 'currentColor'
-        const dot = p.color ?? 'currentColor'
+      {paths.map((p, pathIndex) => {
+        const isOut = Boolean(p.color)
+        const stroke = p.color ?? '#9CA3AF'
+        const packets = packetsForPath(isOut, pathIndex)
         return (
-          <g key={p.id}>
+          <g key={p.id} opacity={reduce ? 1 : undefined}>
+            {/* Soft underlay */}
             <path
               d={p.d}
               fill="none"
               stroke={stroke}
-              strokeWidth="1.25"
-              strokeOpacity={p.color ? 0.45 : 0.2}
-              markerEnd={p.color ? undefined : 'url(#flow-arrow)'}
+              strokeWidth={isOut ? 3.5 : 2.5}
+              strokeOpacity={isOut ? 0.1 : 0.06}
+              strokeLinecap="round"
             />
-            {!reduce && (
-              <>
-                <circle r="3.5" fill={dot}>
-                  <animateMotion dur="2.8s" begin={`${p.delay}s`} repeatCount="indefinite" path={p.d} />
-                  <animate
-                    attributeName="opacity"
-                    values="0;1;1;0"
-                    keyTimes="0;0.1;0.9;1"
-                    dur="2.8s"
-                    begin={`${p.delay}s`}
-                    repeatCount="indefinite"
-                  />
-                </circle>
-                <circle r="3" fill={dot} opacity={0.7}>
-                  <animateMotion
-                    dur="2.8s"
-                    begin={`${p.delay + 1.4}s`}
-                    repeatCount="indefinite"
-                    path={p.d}
-                  />
-                  <animate
-                    attributeName="opacity"
-                    values="0;0.85;0.85;0"
-                    keyTimes="0;0.1;0.9;1"
-                    dur="2.8s"
-                    begin={`${p.delay + 1.4}s`}
-                    repeatCount="indefinite"
-                  />
-                </circle>
-              </>
-            )}
+            <path
+              d={p.d}
+              fill="none"
+              stroke={stroke}
+              strokeWidth={isOut ? 1.35 : 1.15}
+              strokeOpacity={isOut ? 0.45 : 0.3}
+              strokeLinecap="round"
+              markerEnd={isOut ? undefined : 'url(#flow-arrow)'}
+            >
+              {!reduce && (
+                <animate
+                  attributeName="stroke-opacity"
+                  values={`0;0;${isOut ? 0.45 : 0.3}`}
+                  keyTimes="0;0.2;1"
+                  dur="1.15s"
+                  begin={`${Math.min(p.delay * 0.4, 0.5)}s`}
+                  fill="freeze"
+                />
+              )}
+            </path>
+            {!reduce &&
+              packets.map((pkt, i) => (
+                <g key={`${p.id}-pkt-${i}`} filter={pkt.glow ? 'url(#packet-glow)' : undefined}>
+                  <circle r={pkt.r} fill={stroke} opacity={0}>
+                    <animateMotion
+                      dur={`${pkt.dur}s`}
+                      begin={`${p.delay + pkt.offset}s`}
+                      repeatCount="indefinite"
+                      path={p.d}
+                      rotate="auto"
+                      calcMode="spline"
+                      keyTimes="0;1"
+                      keySplines="0.4 0 0.2 1"
+                    />
+                    <animate
+                      attributeName="opacity"
+                      values="0;1;1;0"
+                      keyTimes="0;0.08;0.88;1"
+                      dur={`${pkt.dur}s`}
+                      begin={`${p.delay + pkt.offset}s`}
+                      repeatCount="indefinite"
+                    />
+                    <animate
+                      attributeName="r"
+                      values={`${pkt.r * 0.7};${pkt.r};${pkt.r * 0.85}`}
+                      keyTimes="0;0.45;1"
+                      dur={`${pkt.dur}s`}
+                      begin={`${p.delay + pkt.offset}s`}
+                      repeatCount="indefinite"
+                    />
+                  </circle>
+                </g>
+              ))}
           </g>
         )
       })}
@@ -381,27 +451,57 @@ function CurvedFlows({
   )
 }
 
-function EndpointLabels({ paths }: { paths: FlowPath[] }) {
+function EndpointLabels({
+  paths,
+  reduce,
+}: {
+  paths: FlowPath[]
+  reduce: boolean
+}) {
   return (
     <>
       {paths
         .filter(p => p.label)
-        .map(p => {
+        .map((p, i) => {
           const c = p.label!.color ?? p.color ?? '#171717'
           return (
-            <div
+            <motion.div
               key={`label-${p.id}`}
-              className="pointer-events-none absolute z-[3] -translate-x-1/2 -translate-y-1/2"
+              className="pointer-events-none absolute z-[3] -translate-x-1/2 -translate-y-1/2 will-change-transform"
               style={{ left: p.label!.x, top: p.label!.y }}
+              initial={reduce ? false : { opacity: 0, scale: 0.9, y: 6 }}
+              animate={
+                reduce
+                  ? { opacity: 1, scale: 1, y: 0 }
+                  : {
+                      opacity: 1,
+                      scale: 1,
+                      y: [0, -3, 0, 2, 0],
+                    }
+              }
+              transition={{
+                opacity: { delay: 0.55 + i * 0.03, duration: 0.4 },
+                scale: { delay: 0.55 + i * 0.03, duration: 0.4 },
+                y: reduce
+                  ? undefined
+                  : {
+                      delay: 1 + (i % 6) * 0.2,
+                      duration: 4.8 + (i % 4) * 0.4,
+                      repeat: Infinity,
+                      ease: 'easeInOut',
+                    },
+              }}
             >
               <div
-                className="flex items-center gap-1.5 whitespace-nowrap border bg-background/95 px-1.5 py-0.5 shadow-[0_4px_14px_rgba(0,0,0,0.06)] backdrop-blur-sm"
+                className="flex items-center gap-1.5 whitespace-nowrap rounded-md border bg-background/95 px-1.5 py-0.5 shadow-[0_4px_14px_rgba(0,0,0,0.07)] backdrop-blur-sm"
                 style={{ borderColor: `${c}55` }}
               >
-                <span
+                <motion.span
                   aria-hidden
                   className="h-1.5 w-1.5 shrink-0 rounded-full"
                   style={{ backgroundColor: c }}
+                  animate={reduce ? undefined : { opacity: [0.55, 1, 0.55], scale: [1, 1.25, 1] }}
+                  transition={{ duration: 2.2 + (i % 3) * 0.3, repeat: Infinity, ease: 'easeInOut' }}
                 />
                 <span className="font-mono text-[8px] leading-none text-foreground/85">
                   {p.label!.endpoint}
@@ -410,7 +510,7 @@ function EndpointLabels({ paths }: { paths: FlowPath[] }) {
                   {p.label!.price}
                 </span>
               </div>
-            </div>
+            </motion.div>
           )
         })}
     </>
@@ -427,10 +527,10 @@ function FinalityOrb({
   return (
     <motion.div
       ref={hubRef}
-      initial={reduce ? false : { opacity: 0, scale: 0.88 }}
+      initial={reduce ? false : { opacity: 0, scale: 0.82 }}
       whileInView={{ opacity: 1, scale: 1 }}
       viewport={{ once: true }}
-      transition={{ duration: 0.5 }}
+      transition={{ duration: 0.65, ease: [0.22, 1, 0.36, 1] }}
       className="relative z-[2] flex h-[5.75rem] w-[5.75rem] items-center justify-center rounded-full bg-background lg:h-[7rem] lg:w-[7rem]"
       style={{
         boxShadow:
@@ -438,14 +538,32 @@ function FinalityOrb({
       }}
     >
       {!reduce && (
-        <motion.span
-          aria-hidden
-          className="pointer-events-none absolute -inset-3 rounded-full border border-foreground/10"
-          animate={{ opacity: [0.2, 0.55, 0.2], scale: [1, 1.06, 1] }}
-          transition={{ duration: 3.2, repeat: Infinity, ease: 'easeInOut' }}
-        />
+        <>
+          <motion.span
+            aria-hidden
+            className="pointer-events-none absolute -inset-2 rounded-full border border-foreground/15"
+            animate={{ opacity: [0.15, 0.5, 0.15], scale: [1, 1.08, 1] }}
+            transition={{ duration: 2.8, repeat: Infinity, ease: 'easeInOut' }}
+          />
+          <motion.span
+            aria-hidden
+            className="pointer-events-none absolute -inset-5 rounded-full border border-foreground/10"
+            animate={{ opacity: [0.05, 0.35, 0.05], scale: [1, 1.12, 1] }}
+            transition={{ duration: 3.8, repeat: Infinity, ease: 'easeInOut', delay: 0.6 }}
+          />
+          <motion.span
+            aria-hidden
+            className="pointer-events-none absolute inset-0 rounded-full bg-foreground/[0.03]"
+            animate={{ opacity: [0.2, 0.55, 0.2] }}
+            transition={{ duration: 2.4, repeat: Infinity, ease: 'easeInOut' }}
+          />
+        </>
       )}
-      <span className="relative h-[4.5rem] w-[4.5rem] overflow-hidden rounded-full ring-1 ring-black/10 lg:h-[5.5rem] lg:w-[5.5rem]">
+      <motion.span
+        className="relative h-[4.5rem] w-[4.5rem] overflow-hidden rounded-full ring-1 ring-black/10 lg:h-[5.5rem] lg:w-[5.5rem]"
+        animate={reduce ? undefined : { scale: [1, 1.03, 1] }}
+        transition={{ duration: 3.2, repeat: Infinity, ease: 'easeInOut' }}
+      >
         <Image
           src="/logo.webp"
           alt="Finality"
@@ -454,7 +572,7 @@ function FinalityOrb({
           className="h-full w-full object-cover"
           priority
         />
-      </span>
+      </motion.span>
     </motion.div>
   )
 }
@@ -506,11 +624,11 @@ export default function ProductFlowAnimation() {
     providerRefs.current.forEach((el, i) => {
       if (!el) return
       const from = relativePoint(el, box, 'right')
-      const fanY = (i - (PROVIDERS.length - 1) / 2) * 28
+      const fanY = (i - (PROVIDERS.length - 1) / 2) * 34
       next.push({
         id: `in-${i}`,
-        d: curvePath(from, inGate, 0.45, -fanY * 0.35),
-        delay: i * 0.22,
+        d: curvePath(from, inGate, 0.52, -fanY * 0.4),
+        delay: 0.15 + i * 0.18,
       })
     })
 
@@ -536,29 +654,17 @@ export default function ProductFlowAnimation() {
         d: curvePath(outGate, to, pull, route.fan),
         delay: 0.12 + i * 0.08,
         color,
-        label: {
-          endpoint: route.endpoint,
-          price: route.price,
-          x: mid.x,
-          y: mid.y,
-          color,
-        },
-      })
-    })
-
-    // Light per-org label nudge only — avoid shoving labels onto other orgs
-    const byOrg = new Map<string, FlowPath[]>()
-    outbound.forEach(p => {
-      const orgId = p.id.replace(/^out-/, '').replace(/-[01]$/, '')
-      const list = byOrg.get(orgId) ?? []
-      list.push(p)
-      byOrg.set(orgId, list)
-    })
-    byOrg.forEach(list => {
-      list.forEach((p, slot) => {
-        if (!p.label) return
-        p.label.y += slot === 0 ? -8 : 10
-        p.label.x += slot === 0 ? -4 : 10
+        // One floating price pill per org keeps the diagram readable
+        label:
+          route.slot === 0
+            ? {
+                endpoint: route.endpoint,
+                price: route.price,
+                x: mid.x,
+                y: mid.y - 6,
+                color,
+              }
+            : undefined,
       })
     })
 
@@ -610,7 +716,7 @@ export default function ProductFlowAnimation() {
           </h2>
           <p className="mx-auto mt-5 max-w-xl text-lg font-light leading-relaxed text-muted-foreground">
             We aggregate Cardano chain data from Blockfrost, Koios, Maestro, Nexus, Ogmios, and UTxORPC. Your org or
-            agents call what they need and settle in ADA per request via x402.
+            agents call what they need and settle in USDM per request via x402.
           </p>
         </div>
 
@@ -640,12 +746,12 @@ export default function ProductFlowAnimation() {
             </div>
           </div>
 
-          <div ref={diagramRef} className="relative h-[640px] lg:h-[720px]">
+          <div ref={diagramRef} className="relative h-[660px] lg:h-[740px]">
             <CurvedFlows paths={paths} reduce={reduce} size={size} />
-            <EndpointLabels paths={paths} />
+            <EndpointLabels paths={paths} reduce={reduce} />
 
             {/* Left cloud */}
-            <div className="absolute inset-y-0 left-0 w-[30%] lg:w-[28%]">
+            <div className="absolute inset-y-0 left-0 w-[28%] lg:w-[26%]">
               {PROVIDERS.map((p, i) => (
                 <CircleNode
                   key={p.id}
@@ -662,12 +768,12 @@ export default function ProductFlowAnimation() {
             </div>
 
             {/* Hub */}
-            <div className="absolute left-[40%] top-1/2 z-[2] -translate-x-1/2 -translate-y-1/2 lg:left-[38%]">
+            <div className="absolute left-[38%] top-1/2 z-[2] -translate-x-1/2 -translate-y-1/2 lg:left-[36%]">
               <FinalityOrb reduce={reduce} hubRef={hubRef} />
             </div>
 
             {/* Right cloud — denser org constellation */}
-            <div className="absolute inset-y-0 right-0 w-[42%] lg:w-[44%]">
+            <div className="absolute inset-y-0 right-0 w-[44%] lg:w-[46%]">
               {ORGS.map((o, i) => (
                 <CircleNode
                   key={o.id}
@@ -786,8 +892,8 @@ export default function ProductFlowAnimation() {
         <div className="mx-auto mt-12 grid max-w-3xl gap-6 border-t border-border pt-10 sm:grid-cols-3">
           {[
             ['In', 'Blockfrost, Koios, Maestro, Nexus, Ogmios, and UTxORPC'],
-            ['Hub', 'Finality aggregates and prices each endpoint in ADA'],
-            ['Out', 'Orgs pay ADA only for the endpoint they call'],
+            ['Hub', 'Finality aggregates and prices each endpoint in USDM'],
+            ['Out', 'Orgs pay USDM only for the endpoint they call'],
           ].map(([k, v]) => (
             <div key={k}>
               <div className="font-mono text-[10px] uppercase tracking-[0.18em] text-muted-foreground">{k}</div>

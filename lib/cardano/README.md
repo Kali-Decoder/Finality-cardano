@@ -19,6 +19,7 @@ const session = await connectWallet('eternl')
 const address = await session.getChangeAddress() // addr1... / addr_test1...
 const balance = await session.getBalance()       // { lovelace, ada, assets }
 const witness = await session.signTransaction(unsignedTxCborHex, true)
+const signedTx = toSignedTransaction(unsignedTxCborHex, witness)
 ```
 
 In React (inside `CardanoWalletProvider`):
@@ -28,6 +29,7 @@ const { connected, address, adaBalance, connect, signTx } = useCardanoWallet()
 ```
 
 Paid API calls use `signTx` after the merchant builds an unsigned tx via `POST /api/x402/pay/intent`.
+`useCardanoWallet().signTx` already merges the CIP-30 witness set into a full signed tx.
 
 ## Testnet notes
 
@@ -44,4 +46,5 @@ Paid API calls use `signTx` after the merchant builds an unsigned tx via `POST /
 1. **Injection timing** — open the picker after focus / `waitForWallets`, not only on first paint.
 2. **Hex vs bech32** — CIP-30 returns address bytes as hex; the connector converts to `addr` / `addr_test`.
 3. **Partial sign** — `signTransaction(tx, true)` for unsigned txs that only need the buyer’s witnesses.
-4. **Tx building** — coin selection stays server-side (`buildUnsignedPaymentTx` / `@odatano/core`). For a full client-side builder later, Mesh SDK is the usual path.
+4. **Witness set ≠ signed tx** — CIP-30 `signTx` returns a witness-set map. Always `toSignedTransaction(unsigned, witness)` before settle / `PAYMENT-SIGNATURE` (the React `signTx` helper does this).
+5. **Tx building** — coin selection stays server-side (`buildUnsignedPaymentTx` / `@odatano/core`). For a full client-side builder later, Mesh SDK is the usual path.

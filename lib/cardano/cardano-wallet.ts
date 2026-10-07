@@ -28,6 +28,7 @@ export type KnownWallet = {
 export const KNOWN_WALLETS: readonly KnownWallet[] = [
   { key: 'lace', name: 'Lace', installUrl: 'https://www.lace.io/', icon: '/wallets/lace.svg' },
   { key: 'nami', name: 'Nami', installUrl: 'https://namiwallet.io/', icon: '/wallets/nami.svg' },
+  { key: 'eternl', name: 'Eternl', installUrl: 'https://eternl.io/', icon: '/wallets/eternl.svg' },
 ] as const
 
 const KNOWN_BY_KEY = Object.fromEntries(KNOWN_WALLETS.map((w) => [w.key, w])) as Record<
@@ -284,6 +285,10 @@ function createSession(key: string, walletMeta: InjectedWallet, api: Cip30Api): 
       return utxos.map(parseUtxo)
     },
 
+    /**
+     * CIP-30 `signTx` returns a *witness set* CBOR hex, not a full signed tx.
+     * Call `toSignedTransaction(unsigned, result)` before submit / PAYMENT-SIGNATURE.
+     */
     async signTransaction(unsignedTxCborHex: string, partialSign = false) {
       guard()
       return api.signTx(unsignedTxCborHex, partialSign)
@@ -426,6 +431,7 @@ export function hexToBytes(hex: string): Uint8Array {
   if (typeof hex !== 'string') throw new Error('Expected hex string')
   const h = hex.startsWith('0x') ? hex.slice(2) : hex
   if (h.length % 2 !== 0) throw new Error('Odd-length hex string')
+  if (!/^[0-9a-f]*$/i.test(h)) throw new Error('Invalid hex string')
   const out = new Uint8Array(h.length / 2)
   for (let i = 0; i < out.length; i++) {
     out[i] = Number.parseInt(h.slice(i * 2, i * 2 + 2), 16)
@@ -435,6 +441,146 @@ export function hexToBytes(hex: string): Uint8Array {
 
 export function bytesToHex(bytes: Uint8Array): string {
   return Array.from(bytes, (b) => b.toString(16).padStart(2, '0')).join('')
+}
+
+/**
+ * True when CBOR is a CIP-30 witness set (map) rather than a full transaction (array).
+ * Per CIP-30, `api.signTx` returns `cbor<transaction_witness_set>`.
+ */
+export function isWitnessSetCbor(cborHex: string): boolean {
+  const h = cborHex.startsWith('0x') ? cborHex.slice(2) : cborHex
+  if (!/^[0-9a-f]{2}/i.test(h)) return false
+  return (Number.parseInt(h.slice(0, 2), 16) >> 5) === 5
+}
+
+/** Skip one CBOR data item; preserves nested tags / floats without full decode. */
+function skipCborItem(bytes: Uint8Array, offset: number): number {
+  if (offset >= bytes.length) throw new Error('Unexpected end of CBOR')
+  const ib = bytes[offset]!
+  const major = ib >> 5
+  const info = ib & 31
+
+  if (info === 31) {
+    // Indefinite-length: break (0xff) terminated.
+    let o = offset + 1
+    if (major === 2 || major === 3) {
+      while (bytes[o] !== 0xff) o = skipCborItem(bytes, o)
+      return o + 1
+    }
+    if (major === 4 || major === 5) {
+      while (bytes[o] !== 0xff) {
+        o = skipCborItem(bytes, o)
+        if (major === 5) o = skipCborItem(bytes, o)
+      }
+      return o + 1
+    }
+    throw new Error(`Unsupported indefinite CBOR major type ${major}`)
+  }
+
+  if (major === 0 || major === 1) {
+    const { next } = readLength(info, bytes, offset + 1)
+    return next
+  }
+  if (major === 2 || major === 3) {
+    const { length, next } = readLength(info, bytes, offset + 1)
+    return next + Number(length)
+  }
+  if (major === 4) {
+    const { length, next } = readLength(info, bytes, offset + 1)
+    let o = next
+    for (let i = 0; i < Number(length); i++) o = skipCborItem(bytes, o)
+    return o
+  }
+  if (major === 5) {
+    const { length, next } = readLength(info, bytes, offset + 1)
+    let o = next
+    for (let i = 0; i < Number(length); i++) {
+      o = skipCborItem(bytes, o)
+      o = skipCborItem(bytes, o)
+    }
+    return o
+  }
+  if (major === 6) {
+    const { next } = readLength(info, bytes, offset + 1)
+    return skipCborItem(bytes, next)
+  }
+  if (major === 7) {
+    if (info < 24) return offset + 1
+    if (info === 24) return offset + 2
+    if (info === 25) return offset + 3
+    if (info === 26) return offset + 5
+    if (info === 27) return offset + 9
+    throw new Error(`Unsupported CBOR simple/float info ${info}`)
+  }
+  throw new Error(`Unsupported CBOR major type ${major}`)
+}
+
+function concatBytes(chunks: Uint8Array[]): Uint8Array {
+  const total = chunks.reduce((n, c) => n + c.length, 0)
+  const out = new Uint8Array(total)
+  let o = 0
+  for (const c of chunks) {
+    out.set(c, o)
+    o += c.length
+  }
+  return out
+}
+
+/**
+ * Replace CBOR array element `index` while leaving other elements' bytes untouched
+ * (critical so the tx body hash the wallet signed stays identical).
+ */
+function replaceCborArrayElement(txBytes: Uint8Array, index: number, replacement: Uint8Array): Uint8Array {
+  const ib = txBytes[0]!
+  if (ib >> 5 !== 4) throw new Error('Expected CBOR array (Cardano transaction)')
+  const info = ib & 31
+  if (info === 31) throw new Error('Indefinite-length transaction arrays are not supported')
+  const { length, next: headerEnd } = readLength(info, txBytes, 1)
+  const n = Number(length)
+  if (index < 0 || index >= n) throw new Error(`CBOR array index ${index} out of range (len ${n})`)
+
+  const starts: number[] = []
+  let o = headerEnd
+  for (let i = 0; i < n; i++) {
+    starts.push(o)
+    o = skipCborItem(txBytes, o)
+  }
+  const ends = [...starts.slice(1), o]
+
+  const chunks: Uint8Array[] = [txBytes.slice(0, headerEnd)]
+  for (let i = 0; i < n; i++) {
+    chunks.push(i === index ? replacement : txBytes.slice(starts[i], ends[i]))
+  }
+  return concatBytes(chunks)
+}
+
+/**
+ * Combine an unsigned tx with the witness set CIP-30 `signTx()` returns.
+ * Preserves the original body bytes so the signed body hash stays valid.
+ */
+export function combineUnsignedTxWithWitnessSet(
+  unsignedTxCborHex: string,
+  witnessSetCborHex: string,
+): string {
+  const txBytes = hexToBytes(unsignedTxCborHex)
+  const witnessBytes = hexToBytes(witnessSetCborHex)
+  if ((witnessBytes[0]! >> 5) !== 5) {
+    throw new Error('CIP-30 witness set must be a CBOR map')
+  }
+  // Empty map `a0` is not a signature — wallets that decline still shouldn't reach here.
+  if (witnessBytes.length === 1 && witnessBytes[0] === 0xa0) {
+    throw new Error('Wallet returned an empty witness set (no signature)')
+  }
+  return bytesToHex(replaceCborArrayElement(txBytes, 1, witnessBytes))
+}
+
+/** Full signed tx CBOR: as given, or unsigned tx + CIP-30 witness set. */
+export function toSignedTransaction(
+  unsignedTxCborHex: string,
+  signedTxOrWitnessSetHex: string,
+): string {
+  if (!isWitnessSetCbor(signedTxOrWitnessSetHex)) return signedTxOrWitnessSetHex
+  return combineUnsignedTxWithWitnessSet(unsignedTxCborHex, signedTxOrWitnessSetHex)
 }
 
 function readLength(info: number, bytes: Uint8Array, offset: number): { length: number | bigint; next: number } {

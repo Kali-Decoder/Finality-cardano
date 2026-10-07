@@ -136,7 +136,7 @@ export default function OverviewPage() {
               'Connect to see balance'
             )}
           </h3>
-          <p>{connected ? shortAddress : 'Lace or Nami on Preprod. CIP-30 signing only.'}</p>
+          <p>{connected ? shortAddress : 'Lace, Nami, or Eternl on Preprod. CIP-30 signing only.'}</p>
           <span className="dash-stat__foot">
             <span className="dot" />
             {connected ? 'CIP-30 session' : 'Waiting for wallet'}

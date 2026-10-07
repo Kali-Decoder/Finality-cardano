@@ -22,6 +22,7 @@ import {
   networkName,
   shortenAddress,
   formatAda,
+  toSignedTransaction,
   NETWORK_MAINNET,
   NETWORK_TESTNET,
   type DiscoveredWallet,
@@ -243,7 +244,28 @@ export function CardanoWalletProvider({ children }: { children: ReactNode }) {
       if (net === NETWORK_MAINNET) {
         throw new Error('Wallet is on Mainnet. Switch the extension to Preprod (testnet), then reconnect.')
       }
-      return session.signTransaction(unsignedTxCborHex, true)
+      let witnessOrSigned: string
+      try {
+        // partialSign=true: payment txs only need the buyer's vkeys (CIP-30).
+        witnessOrSigned = await session.signTransaction(unsignedTxCborHex, true)
+      } catch (err) {
+        const code = typeof err === 'object' && err && 'code' in err ? Number((err as { code: unknown }).code) : NaN
+        const info =
+          typeof err === 'object' && err && 'info' in err ? String((err as { info: unknown }).info) : ''
+        const msg = err instanceof Error ? err.message : String(err)
+        // CIP-30 TxSignError: 1 = ProofGeneration, 2 = UserDeclined
+        if (code === 2 || /declin|reject|denied|cancel/i.test(`${info} ${msg}`)) {
+          throw new Error('Wallet signature declined. Approve the payment in your extension, then try again.')
+        }
+        if (code === 1 || /proof|cannot sign|unable to sign/i.test(`${info} ${msg}`)) {
+          throw new Error(
+            'Wallet could not sign this payment. Confirm Preprod, USDM + ADA for fees, and that the connected address matches the funded account.',
+          )
+        }
+        throw err instanceof Error ? err : new Error(msg)
+      }
+      // CIP-30 returns a witness set — merge into the unsigned tx for PAYMENT-SIGNATURE.
+      return toSignedTransaction(unsignedTxCborHex, witnessOrSigned)
     },
     [session],
   )
@@ -324,6 +346,9 @@ export {
   shortenAddress,
   formatAda,
   lovelaceToAda,
+  isWitnessSetCbor,
+  toSignedTransaction,
+  combineUnsignedTxWithWitnessSet,
   KNOWN_WALLETS,
   NETWORK_MAINNET,
   NETWORK_TESTNET,

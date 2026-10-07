@@ -13,7 +13,7 @@ const KNOWN_ICON = Object.fromEntries(KNOWN_WALLETS.map((w) => [w.key, w.icon]))
 
 /**
  * CIP-30 connect button — when connected: ADA balance + trimmed address + copy.
- * Disconnect lives in Explore → Settings. Modal lists Lace/Nami with install state.
+ * Disconnect lives in Explore → Settings. Modal lists Lace/Nami/Eternl with install state.
  */
 export default function WalletButton() {
   const {

@@ -93,7 +93,7 @@ x402/                   Vendored @odatano/x402 (srv client, middleware, tests)
 | Payment network | Cardano Preprod (`cardano:preprod`) |
 | Asset | `lovelace` (ADA) |
 | Indexer | Blockfrost (`NETWORK=preprod`) |
-| Wallets | Lace, Nami (CIP-30, `networkId = 0`) |
+| Wallets | Lace, Nami, Eternl (CIP-30, `networkId = 0`) |
 | Settlement | In-process `localFacilitator` (leave `X402_FACILITATOR_URL` empty) |
 
 ## Quick start

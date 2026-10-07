@@ -10,7 +10,7 @@ import { fetchCatalog, metaFor, isProEndpoint, type CatalogEndpoint } from '@/li
 import { saveTransaction } from '@/lib/dashboard/history'
 import ResultPresentation, { sampleResultFor, type ResultEnvelope } from '@/components/ResultPresentation'
 import { cn } from '@/lib/utils'
-import { CARDANO } from '@/lib/goplausible'
+import { CARDANO } from '@/lib/cardano/config'
 
 export default function RunClient() {
   const searchParams = useSearchParams()
@@ -37,7 +37,9 @@ export default function RunClient() {
         const initial =
           opParam && data.some((d) => d.operationId === opParam)
             ? opParam
-            : data[0]?.operationId || 'market.quotes'
+            : data.find((d) => d.operationId === 'demo.ping')?.operationId ||
+              data[0]?.operationId ||
+              'market.quotes'
         setSelected(initial)
       } catch (e: any) {
         if (live) setError(e.message || 'Catalog unavailable')
@@ -150,7 +152,7 @@ export default function RunClient() {
             <span className="n">02</span>Pay per call
           </span>
           <h1>Run endpoint</h1>
-          <p>Configure a paid request and settle ADA via Cardano x402.</p>
+          <p>Configure a paid request and settle USDM via Cardano x402.</p>
         </div>
       </div>
 
@@ -172,7 +174,7 @@ export default function RunClient() {
                 const m = metaFor(item.operationId)
                 return (
                   <option key={item.operationId} value={item.operationId}>
-                    {m.title} · {item.price} ADA
+                    {m.title} · {item.price} USDM
                   </option>
                 )
               })}
@@ -188,7 +190,7 @@ export default function RunClient() {
                 </div>
                 <div>
                   <span className="mono muted">Price</span>
-                  <b>{endpoint.price} ADA</b>
+                  <b>{endpoint.price} USDM</b>
                 </div>
               </div>
 
@@ -211,7 +213,7 @@ export default function RunClient() {
                   </span>
                 </div>
                 <p className="muted" style={{ margin: '10px 0 0', fontSize: 14 }}>
-                  Unpaid calls return HTTP 402. Your CIP-30 wallet signs the ADA payment; settlement is on Cardano via
+                  Unpaid calls return HTTP 402. Your CIP-30 wallet signs the USDM payment; settlement is on Cardano via
                   @odatano/x402.
                 </p>
                 <div className="mono muted" style={{ marginTop: 10, fontSize: 12, wordBreak: 'break-all' }}>
@@ -241,7 +243,7 @@ export default function RunClient() {
               {endpoint?.description || 'Choose an endpoint to preview the paid request.'}
             </p>
             <div className="dash-run__price">
-              {endpoint?.price ?? '—'} <span>ADA</span>
+              {endpoint?.price ?? '—'} <span>USDM</span>
             </div>
             <div className="mono muted" style={{ fontSize: 11, letterSpacing: '0.1em', textTransform: 'uppercase', marginTop: 8 }}>
               {CARDANO.asset} · {CARDANO.network}

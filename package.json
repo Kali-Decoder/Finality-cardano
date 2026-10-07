@@ -14,7 +14,7 @@
     "start:x402": "tsx --env-file=x402-server/.env x402-server/index.ts",
     "lint": "eslint .",
     "test": "vitest run",
-    "check:discovery": "tsx --env-file=x402-server/.env scripts/check-discovery.ts"
+    "check:discovery": "tsx --env-file=.env.local scripts/check-discovery.ts"
   },
   "dependencies": {
     "@harmoniclabs/plutus-data": "^2.0.1",

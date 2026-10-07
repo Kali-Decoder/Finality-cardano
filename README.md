@@ -1,6 +1,6 @@
 # Finality (Cardano)
 
-Pay-per-call market, AI, and Cardano on-chain intelligence. Each request settles in **ADA (lovelace)** on **Cardano Preprod** via x402 (`@odatano/x402`) and the **GoPlausible** facilitator.
+Pay-per-call market, AI, and Cardano on-chain intelligence. Each request settles in **ADA (lovelace)** on **Cardano Preprod** via x402 (`@odatano/x402`). Verify and settle run in-process on the merchant (`localFacilitator` + Blockfrost).
 
 ## Stack
 
@@ -9,7 +9,7 @@ Pay-per-call market, AI, and Cardano on-chain intelligence. Each request settles
 | Next.js (`app/`) | Landing + Explore (CIP-30, catalog, Run) |
 | `/api/x402/*` | Proxy → local merchant |
 | `x402-server/` | Cardano x402 resource server (402 → settle → handler) |
-| Facilitator | `https://facilitator.goplausible.xyz` |
+| Settlement | In-process `@odatano/x402` (`localFacilitator` + Blockfrost) |
 | Wallets | Lace / Nami on Preprod |
 
 ## Quick start
@@ -41,10 +41,10 @@ npm run dev:frontend
 
 1. Client hits a paid route unpaid → **HTTP 402** + `PAYMENT-REQUIRED` (`cardano:preprod`, lovelace).
 2. `POST /pay/intent` builds an unsigned tx; CIP-30 wallet signs.
-3. Client retries with payment proof; facilitator verifies + settles.
+3. Client retries with payment proof; the merchant verifies and settles on Cardano.
 4. Merchant returns data + `PAYMENT-RESPONSE`.
 
-Prices are **≥ 1 ADA** so lovelace outputs clear Cardano min-UTxO.
+Prices are **≥ 1 USDM** so lovelace outputs clear Cardano min-UTxO.
 
 ## Docs
 

@@ -67,7 +67,7 @@ export default function OverviewPage() {
         </span>
         <h1>Pay per call on Cardano.</h1>
         <p className="lede">
-          Connect a Preprod wallet, pick an endpoint, and settle each request in ADA via x402. No subscriptions.
+          Connect a Preprod wallet, pick an endpoint, and settle each request in USDM via x402. No subscriptions.
         </p>
         <div className="dash-page__cta">
           <Link href="/explore/run" className="pill dark">
@@ -86,10 +86,10 @@ export default function OverviewPage() {
             <span>01</span>
           </span>
           <div className="dash-stat__vis">
-            <span className="mf__tag">{spent.toFixed(2)} ADA</span>
+            <span className="mf__tag">{spent.toFixed(2)} USDM</span>
           </div>
           <h3>Session total</h3>
-          <p>ADA settled from paid calls in this browser.</p>
+          <p>USDM settled from paid calls in this browser.</p>
           <span className="dash-stat__foot">
             <span className="dot" />
             Local history
@@ -152,7 +152,7 @@ export default function OverviewPage() {
         {recent.length === 0 ? (
           <div className="dash-empty">
             <p>
-              No paid calls yet. Run an endpoint with a Preprod wallet. Settlements appear here with ADA amount and
+              No paid calls yet. Run an endpoint with a Preprod wallet. Settlements appear here with USDM amount and
               status.
             </p>
             <Link href="/explore/run" className="pill green">
@@ -170,7 +170,7 @@ export default function OverviewPage() {
                   </span>
                 </div>
                 <div className="dash-rows__meta">
-                  <b>{tx.price} ADA</b>
+                  <b>{tx.price} USDM</b>
                   <span className="mono muted">{tx.status}</span>
                 </div>
               </li>

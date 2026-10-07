@@ -148,7 +148,7 @@ export default function EndpointsPage() {
                       <span className="mono muted dash-table__sub">{item.path}</span>
                     </td>
                     <td>
-                      <b>{item.price} ADA</b>
+                      <b>{item.price} USDM</b>
                     </td>
                     <td>
                       <span className="mono muted" style={{ fontSize: 12, textTransform: 'uppercase', letterSpacing: '0.06em' }}>

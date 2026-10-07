@@ -134,7 +134,7 @@ export function QuoteArt() {
           1
         </text>
         <text x="168" y="132" fontFamily="var(--mono)" fontSize="11" fill="#66726A">
-          ADA
+          USDM
         </text>
       </g>
       {[0, 1, 2].map((k) => (
@@ -185,7 +185,7 @@ export function ReceiptArt() {
   const rows = [
     ['Wallet', 'CIP-30 signTx', '1.00'],
     ['Merchant', 'buildPayment', '—'],
-    ['Network', 'cardano:preprod', 'ADA'],
+    ['Network', 'cardano:preprod', 'USDM'],
     ['Settle', 'localFacilitator', 'tx'],
   ]
   return (
@@ -239,7 +239,7 @@ export function DecideArt() {
         '{',
         '  "success": true,',
         '  "operationId": "market.quotes",',
-        '  "payment": { "asset": "lovelace" }',
+        '  "payment": { "asset": "USDM" }',
         '}',
       ].map((line, i) => (
         <text
@@ -281,8 +281,8 @@ export function MarkBlock() {
 export function HeroFlow() {
   const nodes = [
     { x: 520, y: 200, label: 'REQUEST', sub: 'GET /market' },
-    { x: 720, y: 140, label: '402', sub: 'ADA quote' },
-    { x: 920, y: 200, label: 'SIGN', sub: 'CIP-30 · ADA' },
+    { x: 720, y: 140, label: '402', sub: 'USDM quote' },
+    { x: 920, y: 200, label: 'SIGN', sub: 'CIP-30 · USDM' },
     { x: 1080, y: 320, label: 'RESULT', sub: 'live JSON' },
   ]
   return (
@@ -356,14 +356,16 @@ export function HeroFlow() {
         </g>
       ))}
 
-      <g transform="translate(160, 460)">
-        <rect width="220" height="64" rx="32" fill="rgba(163,227,106,0.14)" stroke="rgba(163,227,106,0.45)" />
-        <text x="110" y="28" textAnchor="middle" fill="#A3E36A" fontFamily="var(--mono)" fontSize="11" letterSpacing="1.6">
-          SETTLED ON
+      <g transform="translate(140, 448)">
+        <rect width="280" height="72" rx="36" fill="rgba(163,227,106,0.14)" stroke="rgba(163,227,106,0.45)" />
+        <image href="/brand/cardano.png" x="28" y="18" width="36" height="36" preserveAspectRatio="xMidYMid meet" />
+        <text x="78" y="32" fill="#A3E36A" fontFamily="var(--mono)" fontSize="11" letterSpacing="1.6">
+          SETTLED ON CARDANO
         </text>
-        <text x="110" y="48" textAnchor="middle" fill="#fff" fontFamily="var(--sans)" fontSize="18" fontWeight="650">
-          Cardano · ADA
+        <text x="78" y="54" fill="#fff" fontFamily="var(--sans)" fontSize="18" fontWeight="650">
+          Pay with USDM
         </text>
+        <image href="/brand/usdm.png" x="216" y="18" width="36" height="36" preserveAspectRatio="xMidYMid meet" />
       </g>
     </svg>
   )

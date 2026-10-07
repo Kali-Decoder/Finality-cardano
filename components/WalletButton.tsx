@@ -2,6 +2,7 @@
 
 import { useState } from 'react'
 import { Check, Copy, ExternalLink, X } from 'lucide-react'
+import { AdaBalance } from '@/components/brand/AssetIcons'
 import { useCardanoWallet, KNOWN_WALLETS } from '@/lib/cardano/wallet'
 
 const KNOWN_ICON = Object.fromEntries(KNOWN_WALLETS.map((w) => [w.key, w.icon])) as Record<
@@ -48,7 +49,7 @@ export default function WalletButton() {
         title={[activeWallet?.name, networkLabel, address].filter(Boolean).join(' · ')}
       >
         <span className="wallet-nav__bal mono">
-          {adaBalance != null ? `${adaBalance} ADA` : '… ADA'}
+          <AdaBalance amount={adaBalance != null ? adaBalance : '…'} size={14} />
         </span>
         <span className="wallet-nav__sep" aria-hidden />
         <span className="wallet-nav__addr mono">{shortAddress}</span>

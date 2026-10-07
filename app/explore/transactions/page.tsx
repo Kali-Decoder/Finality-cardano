@@ -2,7 +2,8 @@
 
 import { useEffect, useMemo, useState } from 'react'
 import Link from 'next/link'
-import { loadTransactions, type DashboardTx } from '@/lib/dashboard/history'
+import { UsdmPrice } from '@/components/brand/AssetIcons'
+import { clearTransactions, loadTransactions, type DashboardTx } from '@/lib/dashboard/history'
 import { cn } from '@/lib/utils'
 
 type StatusFilter = 'all' | 'settled' | 'rejected' | 'degraded'
@@ -50,9 +51,23 @@ export default function TransactionsPage() {
           <h1>Transactions</h1>
           <p>Monitor wallet-paid x402 settlements from this browser.</p>
         </div>
-        <Link href="/explore/run" className="pill dark">
-          Run endpoint <span className="pill__ic">→</span>
-        </Link>
+        <div style={{ display: 'flex', flexWrap: 'wrap', gap: 10 }}>
+          {txs.length > 0 && (
+            <button
+              type="button"
+              className="pill line"
+              onClick={() => {
+                clearTransactions()
+                setTxs([])
+              }}
+            >
+              Clear history
+            </button>
+          )}
+          <Link href="/explore/run" className="pill dark">
+            Run endpoint <span className="pill__ic">→</span>
+          </Link>
+        </div>
       </div>
 
       <div className="checks" role="tablist" aria-label="Status filter" style={{ marginBottom: 16 }}>
@@ -110,7 +125,9 @@ export default function TransactionsPage() {
                     <span className="mono muted dash-table__sub">{new Date(tx.at).toLocaleString()}</span>
                   </td>
                   <td>
-                    <b>{tx.price} ADA</b>
+                    <b>
+                      <UsdmPrice amount={tx.price} size={14} />
+                    </b>
                   </td>
                   <td>
                     <b>{tx.title}</b>

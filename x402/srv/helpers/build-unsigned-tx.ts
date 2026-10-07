@@ -1,0 +1,121 @@
+/**
+ * Server-side unsigned payment-tx builder for browser-buyer flows.
+ *
+ * The browser knows the buyer's bech32 (via CIP-30) but not the signing
+ * keys, and shipping coin-selection + protocol-params logic to the
+ * browser would mean megabytes of WASM. So we build the unsigned tx
+ * server-side, return the CBOR for the wallet to sign, and let the
+ * browser submit the signed CBOR as `payload.transaction` in the
+ * PAYMENT-SIGNATURE envelope.
+ *
+ * The build itself (UTxO fetch, coin selection, change, min-ADA, fee) is
+ * delegated wholesale to `@odatano/core`'s Buildooor builder via
+ * `bridge.buildUnsignedTransfer`, x402 owns no tx-construction library.
+ * We add only the two x402-specific pieces core doesn't:
+ *   - the `requiredSignerHex` (buyer's payment-cred VKey hash), parsed
+ *     from the bech32 address (see `./address`);
+ *   - the v2 `nonceRef`, read back from the built tx's first input so it
+ *     is guaranteed to reference a UTxO the tx actually spends.
+ *
+ * **x402-spec deviation:** strict v2 has the buyer construct the tx
+ * end-to-end. This is the "self-facilitator" pattern: the server builds,
+ * the buyer signs, the server still validates the signed tx against
+ * requirements before settling. Same security model (the buyer's
+ * signature still authorises the spend), easier browser ergonomics.
+ */
+
+import * as bridge from '../bridge';
+import type { PaymentRequirements } from '../core/types';
+import { parseAsset } from '../core/asset';
+import { parsePaymentAddress } from './address';
+import { isScriptExtra } from '../core/transfer-method';
+import { transferExtraProblem } from '../core/transfer';
+
+/** Headroom below `maxTimeoutSeconds`, so slot rounding never lands past the facilitator's bound. */
+const TTL_MARGIN_SECONDS = 10;
+
+export interface BuildUnsignedTxArgs {
+  /** Buyer's bech32 address (must be Base or Enterprise with VKey-hash payment cred). */
+  buyerBech32: string;
+  /** The `accepts[]` entry to pay. */
+  requirements: PaymentRequirements;
+  /** default and maximum: `requirements.maxTimeoutSeconds` minus a small margin; TTL from now */
+  ttlSeconds?: number;
+}
+
+export interface UnsignedTxResult {
+  /** CBOR hex of the unsigned tx (empty witness set). Ready for CIP-30 signTx. */
+  unsignedTxCborHex: string;
+  /** Hex tx hash, what the buyer's wallet will display. */
+  txHashHex:         string;
+  /** Buyer's payment-cred VKey hash, wallet must sign for this. */
+  requiredSignerHex: string;
+  /** v2 nonce reference `<txHash>#<index>`, the tx's first spent input. */
+  nonceRef:          string;
+  /** Echo of the inputs the builder selected so the buyer's UI can show "spends these UTxOs". */
+  inputs: Array<{ txHash: string; outputIndex: number; lovelace: string }>;
+  /** TTL slot used for the validity-range upper bound (as set by the builder). */
+  ttlSlot:           number | null;
+}
+
+export async function buildUnsignedPaymentTx(
+  args: BuildUnsignedTxArgs,
+): Promise<UnsignedTxResult> {
+  const { buyerBech32, requirements } = args;
+  // 1. Validate the buyer address shape and derive the required signer.
+  //    Throws for bad bech32 / script-cred / non-payment addresses.
+  const { paymentKeyHashHex } = parsePaymentAddress(buyerBech32);
+
+  // A script entry is checked like the facilitator will, so the buyer
+  // never locks funds at an address that does not match the declared script.
+  const transferProblem = transferExtraProblem(requirements.extra, requirements.payTo);
+  if (transferProblem) throw new Error(`buildUnsignedPaymentTx: ${transferProblem}`);
+  const datum = isScriptExtra(requirements.extra) ? requirements.extra.datum : undefined;
+
+  // 2. Translate the requirement into a core transfer request. A
+  //    lovelace amount is the output coin and must clear min-UTxO itself
+  //    (core rejects it otherwise); a token output gets its min-ADA added.
+  const parsedAsset = parseAsset(requirements.asset);
+  const required = BigInt(requirements.amount);
+  // Rule 7: the TTL may not lie beyond now + maxTimeoutSeconds. core turns the time into a slot.
+  const maxTtl = Math.max(1, requirements.maxTimeoutSeconds - TTL_MARGIN_SECONDS);
+  const validityEndMs = Date.now() + Math.min(args.ttlSeconds ?? maxTtl, maxTtl) * 1000;
+
+  const req: bridge.CoreTransferReq = {
+    senderAddress:    buyerBech32,
+    recipientAddress: requirements.payTo,
+    changeAddress:    buyerBech32,
+    ...(parsedAsset.isLovelace
+      ? { lovelaceAmount: required.toString() }
+      : { lovelaceAmount: '0', assets: [{ unit: parsedAsset.unit, quantity: required.toString() }] }),
+    validityEndMs,
+    ...(parsedAsset.isLovelace ? {} : { ensureMinAda: true }),
+    ...(datum !== undefined ? { outputDatumCbor: datum } : {}),
+  };
+
+  // 3. Delegate the build (UTxO fetch + coin selection + change + fee).
+  const result = await bridge.buildUnsignedTransfer(req);
+
+  // 4. Read the built tx back to recover the v2 nonce (first spent input,
+  //    guaranteed present) and the TTL slot the builder actually set.
+  const parsed = bridge.parseTransaction(result.unsignedTxCbor);
+  const nonceInput = parsed.inputs[0];
+  if (!nonceInput) {
+    throw new Error('buildUnsignedPaymentTx: builder produced a tx with no inputs');
+  }
+  const nonceRef = `${nonceInput.txHash}#${nonceInput.outputIndex}`;
+  const ttlSlot = parsed.validityEnd != null ? Number(parsed.validityEnd) : null;
+
+  return {
+    unsignedTxCborHex: result.unsignedTxCbor,
+    txHashHex:         result.txBodyHash.toLowerCase(),
+    requiredSignerHex: paymentKeyHashHex,
+    nonceRef,
+    inputs: result.inputs.map(i => ({
+      txHash:      i.txHash,
+      outputIndex: i.index,
+      lovelace:    i.lovelace,
+    })),
+    ttlSlot,
+  };
+}

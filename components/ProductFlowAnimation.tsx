@@ -88,26 +88,26 @@ const ORGS: {
 
 /** Endpoint catalog — assigned round-robin so every org gets connections. */
 const ENDPOINT_POOL: { endpoint: string; price: string }[] = [
-  { endpoint: 'market.quotes', price: '1 ADA' },
-  { endpoint: 'market.candles', price: '1 ADA' },
-  { endpoint: 'market.trending', price: '1 ADA' },
-  { endpoint: 'market.tokenPrices', price: '1 ADA' },
-  { endpoint: 'market.fearGreed', price: '1 ADA' },
-  { endpoint: 'market.categories', price: '1 ADA' },
-  { endpoint: 'intelligence.signals', price: '2 ADA' },
-  { endpoint: 'intelligence.technicals', price: '2 ADA' },
-  { endpoint: 'intelligence.report', price: '3 ADA' },
-  { endpoint: 'intelligence.volume', price: '2 ADA' },
-  { endpoint: 'intelligence.events', price: '2 ADA' },
-  { endpoint: 'agent.decision', price: '2.5 ADA' },
-  { endpoint: 'agent.briefing', price: '2.5 ADA' },
-  { endpoint: 'agent.strategyParse', price: '2.5 ADA' },
-  { endpoint: 'ai.chat', price: '4 ADA' },
-  { endpoint: 'onchain.cardanoTip', price: '1 ADA' },
-  { endpoint: 'onchain.cardanoAddress', price: '1 ADA' },
-  { endpoint: 'onchain.cardanoPortfolio', price: '1 ADA' },
-  { endpoint: 'onchain.cardanoHealth', price: '1 ADA' },
-  { endpoint: 'onchain.cardanoAsset', price: '1 ADA' },
+  { endpoint: 'market.quotes', price: '0.01 USDM' },
+  { endpoint: 'market.candles', price: '0.01 USDM' },
+  { endpoint: 'market.trending', price: '0.01 USDM' },
+  { endpoint: 'market.tokenPrices', price: '0.01 USDM' },
+  { endpoint: 'market.fearGreed', price: '0.01 USDM' },
+  { endpoint: 'market.categories', price: '0.01 USDM' },
+  { endpoint: 'intelligence.signals', price: '0.05 USDM' },
+  { endpoint: 'intelligence.technicals', price: '0.05 USDM' },
+  { endpoint: 'intelligence.report', price: '0.08 USDM' },
+  { endpoint: 'intelligence.volume', price: '0.05 USDM' },
+  { endpoint: 'intelligence.events', price: '0.05 USDM' },
+  { endpoint: 'agent.decision', price: '0.07 USDM' },
+  { endpoint: 'agent.briefing', price: '0.07 USDM' },
+  { endpoint: 'agent.strategyParse', price: '0.07 USDM' },
+  { endpoint: 'ai.chat', price: '0.10 USDM' },
+  { endpoint: 'onchain.cardanoTip', price: '0.01 USDM' },
+  { endpoint: 'onchain.cardanoAddress', price: '0.01 USDM' },
+  { endpoint: 'onchain.cardanoPortfolio', price: '0.01 USDM' },
+  { endpoint: 'onchain.cardanoHealth', price: '0.01 USDM' },
+  { endpoint: 'onchain.cardanoAsset', price: '0.01 USDM' },
 ]
 
 /** Exactly 2 endpoint lines per org — nothing left empty. */
@@ -146,7 +146,7 @@ const PHASES = [
   },
   {
     title: 'Agents pay only when they request',
-    desc: 'No monthly seat for your org. Cardano x402 settles the exact ADA price per call.',
+    desc: 'No monthly seat for your org. Cardano x402 settles the exact USDM price per call.',
   },
 ]
 
@@ -716,7 +716,7 @@ export default function ProductFlowAnimation() {
           </h2>
           <p className="mx-auto mt-5 max-w-xl text-lg font-light leading-relaxed text-muted-foreground">
             We aggregate Cardano chain data from Blockfrost, Koios, Maestro, Nexus, Ogmios, and UTxORPC. Your org or
-            agents call what they need and settle in ADA per request via x402.
+            agents call what they need and settle in USDM per request via x402.
           </p>
         </div>
 
@@ -892,8 +892,8 @@ export default function ProductFlowAnimation() {
         <div className="mx-auto mt-12 grid max-w-3xl gap-6 border-t border-border pt-10 sm:grid-cols-3">
           {[
             ['In', 'Blockfrost, Koios, Maestro, Nexus, Ogmios, and UTxORPC'],
-            ['Hub', 'Finality aggregates and prices each endpoint in ADA'],
-            ['Out', 'Orgs pay ADA only for the endpoint they call'],
+            ['Hub', 'Finality aggregates and prices each endpoint in USDM'],
+            ['Out', 'Orgs pay USDM only for the endpoint they call'],
           ].map(([k, v]) => (
             <div key={k}>
               <div className="font-mono text-[10px] uppercase tracking-[0.18em] text-muted-foreground">{k}</div>

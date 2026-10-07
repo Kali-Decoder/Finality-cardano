@@ -4,6 +4,7 @@ import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { useCardanoWallet } from '@/lib/cardano/wallet'
 import { cn } from '@/lib/utils'
+import { CardanoIcon } from '@/components/brand/AssetIcons'
 import Logo from '@/components/Logo'
 import WalletButton from '@/components/WalletButton'
 
@@ -41,6 +42,7 @@ export function DashboardShell({ children }: { children: React.ReactNode }) {
           </nav>
           <span className="dash-nav__sp" />
           <span className="dash-nav__status">
+            <CardanoIcon size={16} />
             <span className={cn('dot', connected && isExpectedNetwork && 'live')} />
             {connected ? `${networkLabel ?? 'Preprod'} · connected` : 'Preprod · disconnected'}
           </span>

@@ -12,7 +12,8 @@ export type DashboardTx = {
   error?: string
 }
 
-const KEY = 'finality.dashboard.transactions'
+/** v2 — USDM pricing; bumps wipe pre-USDM browser history. */
+const KEY = 'finality.dashboard.transactions.v2'
 
 export function loadTransactions(): DashboardTx[] {
   if (typeof window === 'undefined') return []

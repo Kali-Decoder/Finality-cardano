@@ -66,7 +66,7 @@ function generate() {
     console.log(`\n  FUND THIS ADDRESS (Cardano Preprod):\n`)
     console.log(`  ${existing.address}\n`)
     console.log('Faucet: https://docs.cardano.org/cardano-testnets/tools/faucet')
-    console.log('Send ≥ 5 ADA so you cover 1 ADA endpoint + fees + change.')
+    console.log('Send ≥ 5 ADA so you cover USDM route price + fees + change.')
     return
   }
 

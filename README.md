@@ -156,9 +156,7 @@ Full list: [.env.example](.env.example).
 
 ## Pricing
 
-Each route has a fixed **ADA** price in the registry (catalog shows two decimal places, typically **0.01–0.10 ADA** per call). Settlement uses the matching **lovelace** amount on chain.
-
-**Note:** Very small outputs can hit Cardano **min-UTxO** limits on Preprod; if settlement fails, increase lovelace in `x402-server/registry.ts` for that route.
+Each route has a fixed **USDM** price in the registry (catalog shows two decimal places, **0.01–0.10 USDM** per call). Settlement uses the matching atomic USDM units on Cardano.
 
 ## Security
 

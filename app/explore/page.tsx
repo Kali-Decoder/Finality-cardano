@@ -4,6 +4,7 @@ import { useEffect, useMemo, useState } from 'react'
 import Link from 'next/link'
 import { fetchCatalog, fetchHealth, metaFor, type CatalogEndpoint } from '@/lib/dashboard/catalog'
 import { loadTransactions, spendTotal, type DashboardTx } from '@/lib/dashboard/history'
+import { AdaBalance, CardanoIcon, UsdmPrice } from '@/components/brand/AssetIcons'
 import { useCardanoWallet } from '@/lib/cardano/wallet'
 
 export default function OverviewPage() {
@@ -67,7 +68,7 @@ export default function OverviewPage() {
         </span>
         <h1>Pay per call on Cardano.</h1>
         <p className="lede">
-          Connect a Preprod wallet, pick an endpoint, and settle each request in ADA via x402. No subscriptions.
+          Connect a Preprod wallet, pick an endpoint, and settle each request in USDM via x402. No subscriptions.
         </p>
         <div className="dash-page__cta">
           <Link href="/explore/run" className="pill dark">
@@ -86,10 +87,12 @@ export default function OverviewPage() {
             <span>01</span>
           </span>
           <div className="dash-stat__vis">
-            <span className="mf__tag">{spent.toFixed(2)} ADA</span>
+            <span className="mf__tag">
+              <UsdmPrice amount={spent.toFixed(2)} size={14} />
+            </span>
           </div>
           <h3>Session total</h3>
-          <p>ADA settled from paid calls in this browser.</p>
+          <p>USDM settled from paid calls in this browser.</p>
           <span className="dash-stat__foot">
             <span className="dot" />
             Local history
@@ -116,9 +119,14 @@ export default function OverviewPage() {
             <span>03</span>
           </span>
           <div className="dash-stat__vis">
-            <span className="mf__tag">{connected ? networkLabel ?? 'Preprod' : 'Not connected'}</span>
+            <span className="mf__tag" style={{ display: 'inline-flex', alignItems: 'center', gap: 6 }}>
+              <CardanoIcon size={14} />
+              {connected ? networkLabel ?? 'Preprod' : 'Not connected'}
+            </span>
           </div>
-          <h3>{connected ? `${adaBalance ?? '…'} ADA` : 'Connect to see balance'}</h3>
+          <h3>
+            {connected ? <AdaBalance amount={adaBalance ?? '…'} size={18} /> : 'Connect to see balance'}
+          </h3>
           <p>{connected ? shortAddress : 'Lace or Nami on Preprod. CIP-30 signing only.'}</p>
           <span className="dash-stat__foot">
             <span className="dot" />
@@ -152,7 +160,7 @@ export default function OverviewPage() {
         {recent.length === 0 ? (
           <div className="dash-empty">
             <p>
-              No paid calls yet. Run an endpoint with a Preprod wallet. Settlements appear here with ADA amount and
+              No paid calls yet. Run an endpoint with a Preprod wallet. Settlements appear here with USDM amount and
               status.
             </p>
             <Link href="/explore/run" className="pill green">
@@ -170,7 +178,9 @@ export default function OverviewPage() {
                   </span>
                 </div>
                 <div className="dash-rows__meta">
-                  <b>{tx.price} ADA</b>
+                  <b>
+                    <UsdmPrice amount={tx.price} size={14} />
+                  </b>
                   <span className="mono muted">{tx.status}</span>
                 </div>
               </li>

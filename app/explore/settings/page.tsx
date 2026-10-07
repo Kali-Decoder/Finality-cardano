@@ -1,6 +1,7 @@
 'use client'
 
 import Link from 'next/link'
+import { AdaBalance, CardanoIcon, UsdmIcon } from '@/components/brand/AssetIcons'
 import { useCardanoWallet } from '@/lib/cardano/wallet'
 import { ExternalLink } from 'lucide-react'
 import { clearTransactions } from '@/lib/dashboard/history'
@@ -40,8 +41,10 @@ export default function SettingsPage() {
         {activeAddress && (
           <div className="dash-run__meta">
             <div>
-              <span className="mono muted">ADA balance</span>
-              <b>{adaBalance != null ? `${adaBalance} ADA` : '…'}</b>
+              <span className="mono muted">ADA balance (fees)</span>
+              <b>
+                <AdaBalance amount={adaBalance != null ? adaBalance : '…'} size={16} />
+              </b>
               {lovelace != null && (
                 <span className="mono muted" style={{ fontSize: 12 }}>
                   {lovelace} lovelace
@@ -50,7 +53,10 @@ export default function SettingsPage() {
             </div>
             <div>
               <span className="mono muted">Network</span>
-              <b>{networkLabel ?? network ?? '—'}</b>
+              <b style={{ display: 'inline-flex', alignItems: 'center', gap: 6 }}>
+                <CardanoIcon size={16} />
+                {networkLabel ?? network ?? '—'}
+              </b>
               <span className="mono muted" style={{ fontSize: 12 }}>
                 {isExpectedNetwork
                   ? 'Matches cardano:preprod'
@@ -89,7 +95,15 @@ export default function SettingsPage() {
         <div className="dash-run__meta" style={{ gridTemplateColumns: '1fr 1fr' }}>
           <InfoRow label="Chain" value="Cardano Preprod (testnet)" />
           <InfoRow label="x402 network" value={CARDANO.network} />
-          <InfoRow label="Asset" value={CARDANO.asset} />
+          <InfoRow
+            label="Settlement asset"
+            value={
+              <span style={{ display: 'inline-flex', alignItems: 'center', gap: 6 }}>
+                <UsdmIcon size={16} />
+                {CARDANO.assetLabel}
+              </span>
+            }
+          />
           <InfoRow label="Protocol" value="x402 exact (Cardano)" />
           <InfoRow label="Proxy" value={merchantUrl} />
         </div>
@@ -133,7 +147,7 @@ export default function SettingsPage() {
   )
 }
 
-function InfoRow({ label, value }: { label: string; value: string }) {
+function InfoRow({ label, value }: { label: string; value: React.ReactNode }) {
   return (
     <div>
       <span className="mono muted">{label}</span>

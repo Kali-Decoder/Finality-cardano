@@ -145,8 +145,21 @@ export async function GET() {
       }),
     )
 
+    /**
+     * Live feed reset (USDM era). Ignore older payTo hits so the table starts empty.
+     * Override with LIVE_TXS_AFTER=<unix seconds> (0 = show all) to change the cutoff.
+     */
+    const afterRaw = process.env.LIVE_TXS_AFTER
+    const afterEnv = afterRaw === undefined || afterRaw === '' ? NaN : Number(afterRaw)
+    const afterSec =
+      afterRaw === '0'
+        ? 0
+        : Number.isFinite(afterEnv) && afterEnv > 0
+          ? afterEnv
+          : Math.floor(Date.UTC(2026, 9, 7, 12, 0, 0) / 1000) // 2026-10-07 12:00 UTC
+
     const transactions = details
-      .filter((t) => t.receivedLovelace !== '0')
+      .filter((t) => t.receivedLovelace !== '0' && t.blockTime >= afterSec)
       .map((t) => ({
         ...t,
         explorerUrl: `https://preprod.cardanoscan.io/transaction/${t.txHash}`,
@@ -161,7 +174,7 @@ export async function GET() {
         success: true,
         payTo,
         network: process.env.X402_NETWORK || 'cardano:preprod',
-        asset: 'lovelace',
+        asset: process.env.X402_ASSET || 'USDM',
         asOf: new Date().toISOString(),
         count: transactions.length,
         transactions,

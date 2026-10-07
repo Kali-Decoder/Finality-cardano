@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useState } from 'react'
 import Link from 'next/link'
+import { UsdmPrice } from '@/components/brand/AssetIcons'
 import { CARDANO } from '@/lib/cardano/config'
 import { cn } from '@/lib/utils'
 
@@ -97,7 +98,7 @@ export default function LiveTransactionsPage() {
             Open in Cardanoscan <span className="pill__ic">↗</span>
           </a>
           <span className={cn('chip', txs.length ? 'live' : '')}>
-            {data?.network || CARDANO.network} · lovelace
+            {data?.network || CARDANO.network} · {CARDANO.assetLabel}
           </span>
           {data?.asOf && (
             <span className="mono muted" style={{ fontSize: 12 }}>
@@ -125,7 +126,7 @@ export default function LiveTransactionsPage() {
         </div>
       ) : txs.length === 0 ? (
         <div className="dash-empty">
-          <p>No incoming lovelace transactions on this address yet. Pay a route from Run to see it here.</p>
+          <p>No incoming USDM settlements on this address yet. Pay a route from Run to see it here.</p>
           <Link href="/explore/run" className="pill green">
             Run a paid call <span className="pill__ic">→</span>
           </Link>
@@ -151,8 +152,9 @@ export default function LiveTransactionsPage() {
                     <span className="mono muted dash-table__sub">{tx.at}</span>
                   </td>
                   <td>
-                    <b>{tx.receivedAda} ADA</b>
-                    <span className="mono muted dash-table__sub">{tx.receivedLovelace} lovelace</span>
+                    <b>
+                      <UsdmPrice amount={tx.receivedAda} size={14} />
+                    </b>
                   </td>
                   <td>
                     <span className="mono" style={{ fontSize: 13 }} title={tx.from[0]}>

@@ -653,6 +653,45 @@ a {
   letter-spacing: 0.08em;
   text-transform: uppercase;
 }
+.brand-icon {
+  display: inline-block;
+  vertical-align: middle;
+  border-radius: 50%;
+  object-fit: cover;
+  flex-shrink: 0;
+}
+.brand-icon--usdm {
+  box-shadow: 0 0 0 1px rgba(19, 39, 28, 0.06);
+}
+.brand-icon--cardano {
+  background: #000;
+}
+.asset-amt {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4em;
+  white-space: nowrap;
+}
+.asset-amt__unit {
+  font-size: 0.85em;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  opacity: 0.72;
+}
+.dash-run__price .asset-amt {
+  font: inherit;
+  letter-spacing: inherit;
+}
+.dash-run__price .asset-amt__unit {
+  font-size: 0.42em;
+  color: var(--muted);
+  letter-spacing: 0.08em;
+  opacity: 1;
+}
+.wallet-nav__bal .asset-amt {
+  color: inherit;
+  font: inherit;
+}
 .dash-run__foot {
   display: flex;
   align-items: center;

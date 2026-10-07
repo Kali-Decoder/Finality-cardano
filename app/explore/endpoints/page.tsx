@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useState } from 'react'
 import Link from 'next/link'
+import { UsdmPrice } from '@/components/brand/AssetIcons'
 import { cn } from '@/lib/utils'
 import { fetchCatalog, metaFor, isProEndpoint, CATEGORY_ORDER, type CatalogEndpoint } from '@/lib/dashboard/catalog'
 
@@ -148,7 +149,9 @@ export default function EndpointsPage() {
                       <span className="mono muted dash-table__sub">{item.path}</span>
                     </td>
                     <td>
-                      <b>{item.price} ADA</b>
+                      <b>
+                        <UsdmPrice amount={item.price} size={14} />
+                      </b>
                     </td>
                     <td>
                       <span className="mono muted" style={{ fontSize: 12, textTransform: 'uppercase', letterSpacing: '0.06em' }}>

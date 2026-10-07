@@ -1,0 +1,13 @@
+{
+  "x402Version": 2,
+  "name": "Finality Market Intelligence",
+  "description": "Agent- and user-accessible market, AI, and Algorand on-chain intelligence — paid per result with Mainnet USDC via x402.",
+  "website": "https://finality.accuracy.wtf",
+  "logo": "https://finality.accuracy.wtf/logo.webp",
+  "image": "https://finality.accuracy.wtf/og.png",
+  "merchantId": "WVo0V1JSUEYzMklQNFdHSDVLUk9ERjJL",
+  "api": "https://finality-x402-backend.onrender.com",
+  "resourcesIndex": "https://finality-x402-backend.onrender.com/.well-known/x402",
+  "tags": ["finality", "x402", "algorand", "x402-global-challenge"],
+  "categories": ["market-intelligence", "agents", "algorand", "x402", "x402-global-challenge"]
+}

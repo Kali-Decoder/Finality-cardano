@@ -1,0 +1,16 @@
+{
+  "name": "Finality",
+  "description": "Agent- and user-accessible market, AI, and Cardano on-chain intelligence. Paid per result with ADA via x402.",
+  "url": "https://finality.accuracy.wtf",
+  "version": "1.0.0",
+  "protocol": "x402",
+  "tags": ["finality", "x402", "cardano"],
+  "categories": ["market-intelligence", "agents", "cardano", "x402"],
+  "payments": {
+    "protocol": "x402",
+    "version": 2,
+    "network": "cardano:preprod",
+    "asset": "lovelace",
+    "payTo": "addr_test1vpujgcun6m9y4k75p4slfy5kxwgw2452l2ec6fnryuja42cw9v92z"
+  }
+}

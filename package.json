@@ -14,9 +14,13 @@
     "start:x402": "tsx --env-file=x402-server/.env x402-server/index.ts",
     "lint": "eslint .",
     "test": "vitest run",
-    "check:discovery": "tsx --env-file=.env.local scripts/check-discovery.ts"
+    "check:discovery": "tsx --env-file=.env.local scripts/check-discovery.ts",
+    "buyer:generate": "tsx --env-file=x402-server/.env scripts/preprod-buyer.ts generate",
+    "buyer:balance": "tsx --env-file=x402-server/.env scripts/preprod-buyer.ts balance",
+    "buyer:buy": "tsx --env-file=x402-server/.env scripts/preprod-buyer.ts buy"
   },
   "dependencies": {
+    "@harmoniclabs/buildooor": "^0.2.9",
     "@harmoniclabs/plutus-data": "^2.0.1",
     "@hono/node-server": "^2.1.1",
     "@odatano/core": "2.0.0-rc.34",

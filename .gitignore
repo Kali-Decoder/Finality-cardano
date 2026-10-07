@@ -20,3 +20,4 @@ tsconfig.tsbuildinfo
 .github/
 .syncly-ref/
 x402-server/dist/
+scripts/preprod-buyer-wallet.json

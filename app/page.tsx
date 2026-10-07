@@ -12,6 +12,7 @@ import {
   ReceiptArt,
   VaultArt,
 } from '@/components/home/art'
+import ProductFlowAnimation from '@/components/ProductFlowAnimation'
 
 const Arrow = () => <span className="pill__ic">→</span>
 
@@ -26,7 +27,7 @@ const HOW = [
   {
     n: '01',
     h: 'Connect a CIP-30 wallet',
-    s: 'Eternl, Lace, Nami — no API keys.',
+    s: 'Eternl, Lace, Nami. No API keys.',
     p: (
       <>
         Connect on Cardano Preprod (or Mainnet). Finality never sees your keys; signing stays inside the extension.
@@ -40,7 +41,7 @@ const HOW = [
     s: 'Market, intelligence, AI, or on-chain.',
     p: (
       <>
-        Unpaid requests return <b>HTTP 402</b> with x402 payment requirements — amount, payTo, and network — in plain
+        Unpaid requests return <b>HTTP 402</b> with x402 payment requirements (amount, payTo, and network) in plain
         headers.
       </>
     ),
@@ -93,7 +94,7 @@ const CATALOG = [
     id: 'ai',
     name: 'AI & agents',
     count: '04',
-    tagline: 'Chat, decisions, briefings, and strategy parse — one paid call.',
+    tagline: 'Chat, decisions, briefings, and strategy parse, one paid call.',
     price: 'from ~1 ADA',
     live: true,
   },
@@ -132,7 +133,7 @@ const STOPS: { k: string; h: string; p: string; vis: ReactNode; stat: string }[]
   {
     k: 'Result',
     h: 'Live JSON comes back',
-    p: 'Market and AI routes return analysis; on-chain routes return chain state — with a settlement receipt.',
+    p: 'Market and AI routes return analysis; on-chain routes return chain state, with a settlement receipt.',
     vis: <span className="mf__tag">PAYMENT-RESPONSE</span>,
     stat: 'No monthly seat',
   },
@@ -162,10 +163,10 @@ function Hero() {
           <Rv as="p" delay={0.35}>
             <span className="hx__long">
               Finality is a pay-per-request merchant for market, AI, and Cardano data. Agents and humans hit the same
-              endpoints — settle each call in ADA via x402 and a CIP-30 wallet. No subscriptions.
+              endpoints. Settle each call in ADA via x402 and a CIP-30 wallet. No subscriptions.
             </span>
             <span className="hx__short">
-              Market and Cardano APIs for agents. Pay per call in ADA via x402 — no subscriptions.
+              Market and Cardano APIs for agents. Pay per call in ADA via x402. No subscriptions.
             </span>
           </Rv>
           <Rv className="hx__cta" delay={0.5}>
@@ -205,7 +206,7 @@ function Protocol() {
             {[
               [
                 'Exact lovelace',
-                'Every paid route quotes an exact ADA amount up front. Sign the built transaction or walk away — no open invoices.',
+                'Every paid route quotes an exact ADA amount up front. Sign the built transaction or walk away. No open invoices.',
               ],
               [
                 'CIP-30 wallets',
@@ -232,7 +233,7 @@ function Protocol() {
           <div className="cf__foot">
             <p>
               <span className="mono">Live catalog</span>
-              Thirty-nine endpoints across market, intelligence, AI, and on-chain reads — each priced in ADA.
+              Thirty-nine endpoints across market, intelligence, AI, and on-chain reads, each priced in ADA.
             </p>
             <div className="cf__stats mono">
               <span>
@@ -286,8 +287,8 @@ function PayPath() {
       </ol>
       <Rv className="mf__bar" delay={0.2}>
         <p>
-          <b>Autonomous-ready.</b> Agents decode PAYMENT-REQUIRED, pay in lovelace, and retry with PAYMENT-SIGNATURE —
-          no human checkout page required.
+          <b>Autonomous-ready.</b> Agents decode PAYMENT-REQUIRED, pay in lovelace, and retry with PAYMENT-SIGNATURE.
+          No human checkout page required.
         </p>
         <span className="mf__links">
           <Link href="/explore/run" className="pill green">
@@ -458,6 +459,7 @@ export default function Page() {
     <main className="home">
       <Hero />
       <Protocol />
+      <ProductFlowAnimation />
       <PayPath />
       <How />
       <Catalog />

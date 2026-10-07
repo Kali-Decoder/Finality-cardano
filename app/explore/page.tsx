@@ -67,7 +67,7 @@ export default function OverviewPage() {
         </span>
         <h1>Pay per call on Cardano.</h1>
         <p className="lede">
-          Connect a Preprod wallet, pick an endpoint, and settle each request in ADA via x402 — no subscriptions.
+          Connect a Preprod wallet, pick an endpoint, and settle each request in ADA via x402. No subscriptions.
         </p>
         <div className="dash-page__cta">
           <Link href="/explore/run" className="pill dark">
@@ -119,7 +119,7 @@ export default function OverviewPage() {
             <span className="mf__tag">{connected ? networkLabel ?? 'Preprod' : 'Not connected'}</span>
           </div>
           <h3>{connected ? `${adaBalance ?? '…'} ADA` : 'Connect to see balance'}</h3>
-          <p>{connected ? shortAddress : 'Lace or Nami on Preprod — CIP-30 signing only.'}</p>
+          <p>{connected ? shortAddress : 'Lace or Nami on Preprod. CIP-30 signing only.'}</p>
           <span className="dash-stat__foot">
             <span className="dot" />
             {connected ? 'CIP-30 session' : 'Waiting for wallet'}
@@ -152,7 +152,7 @@ export default function OverviewPage() {
         {recent.length === 0 ? (
           <div className="dash-empty">
             <p>
-              No paid calls yet. Run an endpoint with a Preprod wallet — settlements appear here with ADA amount and
+              No paid calls yet. Run an endpoint with a Preprod wallet. Settlements appear here with ADA amount and
               status.
             </p>
             <Link href="/explore/run" className="pill green">

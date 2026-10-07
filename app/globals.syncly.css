@@ -137,7 +137,8 @@ em { font-style: normal; }
 .on-dark .label .n { background: rgba(163, 227, 106, 0.14); color: var(--accent-2); }
 .eyebrow { display: inline-flex; align-items: center; gap: 8px; font: 500 12px var(--mono); letter-spacing: .1em; text-transform: uppercase; color: var(--accent-ink); margin-bottom: 14px; }
 .chip { display: inline-flex; align-items: center; gap: 7px; font-size: 13px; font-weight: 500; padding: 6px 12px; border-radius: 999px; border: 1px solid var(--line); background: #fff; color: var(--ink-2); white-space: nowrap; }
-.chip.demo { background: var(--amber-soft); border-color: #f1dca8; color: #7a5300; }
+.chip.demo,
+.chip.warn { background: var(--amber-soft); border-color: #f1dca8; color: #7a5300; }
 .chip.live { background: var(--accent-soft); border-color: #CFE6BC; color: var(--accent-ink); }
 .chip.dark { background: rgba(255, 255, 255, 0.1); border-color: rgba(255, 255, 255, 0.18); color: #E8ECF3; }
 .chip.click { cursor: pointer; }

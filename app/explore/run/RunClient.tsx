@@ -28,8 +28,6 @@ export default function RunClient() {
   const [loading, setLoading] = useState(true)
   const [showExample, setShowExample] = useState(false)
   const [blockfrostConfigured, setBlockfrostConfigured] = useState<boolean | null>(null)
-  /** Merchant skips x402 gate — still live providers. Not surfaced in UI copy. */
-  const [gateOpen, setGateOpen] = useState(false)
 
   useEffect(() => {
     let live = true
@@ -43,9 +41,6 @@ export default function RunClient() {
         setCatalog(data)
         if (healthRes && typeof healthRes.blockfrostConfigured === 'boolean') {
           setBlockfrostConfigured(healthRes.blockfrostConfigured)
-        }
-        if (healthRes && typeof healthRes.demoLiveUnpaid === 'boolean') {
-          setGateOpen(healthRes.demoLiveUnpaid)
         }
         const initial =
           opParam && data.some((d) => d.operationId === opParam)
@@ -83,23 +78,20 @@ export default function RunClient() {
   const busy = ['signing', 'settling', 'requesting'].includes(state)
   const runLabel =
     state === 'requesting'
-      ? 'Requesting…'
+      ? 'Building payment…'
       : state === 'signing'
         ? 'Approve in wallet…'
         : state === 'settling'
           ? 'Settling…'
-          : gateOpen
-            ? 'Run'
-            : 'Pay now'
+          : 'Pay now'
 
   const invoke = useCallback(async () => {
     if (!endpoint) return
-    const needsWallet = !gateOpen
-    if (needsWallet && !activeAddress) {
+    if (!activeAddress) {
       setError('Connect a Cardano wallet first (Lace, Nami, or Eternl on Preprod).')
       return
     }
-    if (needsWallet && blockfrostConfigured === false) {
+    if (blockfrostConfigured === false) {
       setError(
         'BLOCKFROST_API_KEY is missing. Paid settlement needs a Preprod Blockfrost project id in x402-server/.env, then restart npm run dev:merchant.',
       )
@@ -128,37 +120,10 @@ export default function RunClient() {
         init = { ...init, headers: { 'content-type': 'application/json' }, body: JSON.stringify(parsed) }
       }
 
-      if (gateOpen) {
-        setState('requesting')
-        const res = await fetch(`${merchantUrl}${path}`, init)
-        const body = await res.json().catch(() => ({}))
-        if (!res.ok) {
-          throw new Error(
-            (body as { error?: { message?: string } })?.error?.message ||
-              (body as { error?: string }).error ||
-              `Request failed (${res.status})`,
-          )
-        }
-        setState('settled')
-        setResult(body)
-        setReceipt(null)
-        saveTransaction({
-          id: `${Date.now()}`,
-          at: new Date().toISOString(),
-          operationId: endpoint.operationId,
-          title: meta?.title || endpoint.operationId,
-          method: endpoint.method,
-          path: endpoint.path,
-          price: endpoint.price,
-          status: 'settled',
-          wallet: activeAddress || undefined,
-        })
-        return
-      }
-
+      // 402 → /pay/intent → CIP-30 signTx (wallet popup) → settle → live endpoint JSON
       const response = await callPaidResource(
         {
-          buyerBech32: activeAddress!,
+          buyerBech32: activeAddress,
           buyerCandidates: paymentAddresses,
           signTx,
         },
@@ -177,7 +142,7 @@ export default function RunClient() {
         path: endpoint.path,
         price: endpoint.price,
         status: response.body?.meta?.synthetic && !isProEndpoint(endpoint.operationId) ? 'degraded' : 'settled',
-        wallet: activeAddress!,
+        wallet: activeAddress,
         receipt: response.receipt,
       })
     } catch (e: any) {
@@ -204,7 +169,7 @@ export default function RunClient() {
         })
       }
     }
-  }, [activeAddress, blockfrostConfigured, endpoint, gateOpen, input, meta, paymentAddresses, signTx])
+  }, [activeAddress, blockfrostConfigured, endpoint, input, meta, paymentAddresses, signTx])
 
   return (
     <div className="dash-page">
@@ -221,7 +186,7 @@ export default function RunClient() {
         </div>
       </div>
 
-      {blockfrostConfigured === false && !gateOpen && (
+      {blockfrostConfigured === false && (
         <div className="dash-alert" style={{ marginBottom: 18 }}>
           <b>Blockfrost not configured.</b> Wallet settlement needs{' '}
           <span className="mono">BLOCKFROST_API_KEY=preprod_…</span> in{' '}
@@ -280,23 +245,21 @@ export default function RunClient() {
                 />
               </label>
 
-              {!gateOpen && (
-                <div className="dash-run__wallet">
-                  <div className="dash-run__wallet-head">
-                    <b>Wallet payment</b>
-                    <span className={cn('chip', activeAddress ? 'live' : 'warn')}>
-                      {activeAddress ? 'Ready' : 'Required'}
-                    </span>
-                  </div>
-                  <p className="muted" style={{ margin: '10px 0 0', fontSize: 14 }}>
-                    Unpaid calls return HTTP 402. Your CIP-30 wallet signs the USDM payment; settlement is on Cardano via
-                    @odatano/x402.
-                  </p>
-                  <div className="mono muted" style={{ marginTop: 10, fontSize: 12, wordBreak: 'break-all' }}>
-                    {activeAddress || 'Not connected. Use Connect wallet in the header'}
-                  </div>
+              <div className="dash-run__wallet">
+                <div className="dash-run__wallet-head">
+                  <b>Wallet payment</b>
+                  <span className={cn('chip', activeAddress ? 'live' : 'warn')}>
+                    {activeAddress ? 'Ready' : 'Required'}
+                  </span>
                 </div>
-              )}
+                <p className="muted" style={{ margin: '10px 0 0', fontSize: 14 }}>
+                  Pay now builds an unsigned USDM payment, opens your CIP-30 wallet to sign, then returns the live
+                  endpoint response after settlement.
+                </p>
+                <div className="mono muted" style={{ marginTop: 10, fontSize: 12, wordBreak: 'break-all' }}>
+                  {activeAddress || 'Not connected. Use Connect wallet in the header'}
+                </div>
+              </div>
             </>
           )}
 
@@ -361,7 +324,9 @@ export default function RunClient() {
 
           {!result && !showExample && (
             <div className="dash-empty" style={{ padding: '28px 20px', width: '100%', alignItems: 'center', textAlign: 'center' }}>
-              <p style={{ maxWidth: '28rem' }}>Press {gateOpen ? 'Run' : 'Pay now'} to fetch a live response.</p>
+              <p style={{ maxWidth: '28rem' }}>
+                Press Pay now — approve the USDM payment in your wallet, then the live response appears here.
+              </p>
             </div>
           )}
 

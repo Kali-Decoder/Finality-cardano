@@ -11,8 +11,11 @@ import {
 } from '../lib/providers/market'
 import { mockQuotes, mockCandles, mockMeta } from '../lib/providers/mock'
 
+import { settlementAsset } from '../lib/cardano/usdm'
+
 const allowMock = () => process.env.ALLOW_MOCK_FALLBACK !== 'false'
 const network = () => process.env.X402_NETWORK || 'cardano:preprod'
+const paymentAsset = () => settlementAsset(process.env.X402_ASSET)
 
 function envelope(operationId: string, data: unknown, meta: Record<string, unknown>, payment?: { settlementId?: string }) {
   return {
@@ -23,7 +26,7 @@ function envelope(operationId: string, data: unknown, meta: Record<string, unkno
     meta,
     payment: {
       network: network(),
-      asset: 'lovelace',
+      asset: paymentAsset(),
       settlementId: payment?.settlementId || 'pending',
     },
   }

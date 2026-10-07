@@ -28,6 +28,7 @@ import {
   type WalletBalance,
   type WalletSession,
 } from './cardano-wallet'
+import { USDM_UNIT, formatUsdm } from './usdm'
 
 /** Product network: Preprod testnet (CIP-30 networkId 0). */
 export const EXPECTED_NETWORK_ID = NETWORK_TESTNET
@@ -58,6 +59,10 @@ type CardanoWalletContextValue = {
   balance: WalletBalance | null
   adaBalance: string | null
   lovelace: string | null
+  /** Raw USDM base units (6 decimals). */
+  usdmUnits: string | null
+  /** Formatted USDM balance for display. */
+  usdmBalance: string | null
   connect: (walletKey: string) => Promise<WalletSession>
   disconnect: () => void
   refreshWallets: () => void
@@ -248,6 +253,12 @@ export function CardanoWalletProvider({ children }: { children: ReactNode }) {
     networkId === NETWORK_TESTNET || Boolean(address?.startsWith('addr_test'))
   const isExpectedNetwork = isTestnet && networkId !== NETWORK_MAINNET
 
+  const usdmUnits = useMemo(() => {
+    if (!balance?.assets?.length) return null
+    const hit = balance.assets.find((a) => a.unit === USDM_UNIT || a.unit.toLowerCase() === USDM_UNIT)
+    return hit?.amount ?? '0'
+  }, [balance])
+
   const value = useMemo<CardanoWalletContextValue>(
     () => ({
       wallets,
@@ -265,6 +276,8 @@ export function CardanoWalletProvider({ children }: { children: ReactNode }) {
       balance,
       adaBalance: balance ? formatAda(balance.lovelace) : null,
       lovelace: balance?.lovelace ?? null,
+      usdmUnits,
+      usdmBalance: usdmUnits != null ? formatUsdm(usdmUnits) : null,
       connect,
       disconnect,
       refreshWallets,
@@ -284,6 +297,7 @@ export function CardanoWalletProvider({ children }: { children: ReactNode }) {
       isTestnet,
       isExpectedNetwork,
       balance,
+      usdmUnits,
       connect,
       disconnect,
       refreshWallets,

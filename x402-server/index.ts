@@ -1,6 +1,6 @@
 /**
  * Finality Cardano x402 merchant (resource server).
- * Network: cardano:preprod · Asset: lovelace · Settlement: localFacilitator + Blockfrost.
+ * Network: cardano:preprod · Asset: USDM only · Settlement: localFacilitator + Blockfrost.
  */
 import express from 'express'
 import {
@@ -11,13 +11,15 @@ import {
   type Facilitator,
   type PricingContext,
 } from '../x402/srv/index'
+import { settlementAsset } from '../lib/cardano/usdm'
 import { ENDPOINTS, catalogProjection, findEndpoint } from './registry'
 import { runEndpoint } from './handlers'
 
 const PORT = Number(process.env.X402_SERVER_PORT || 4021)
 const PAY_TO = process.env.X402_PAYTO_ADDRESS || process.env.NEXT_PUBLIC_X402_PAYTO || ''
 const NETWORK = (process.env.X402_NETWORK || 'cardano:preprod') as 'cardano:preprod'
-const ASSET = process.env.X402_ASSET || 'lovelace'
+/** USDM only — never fall back to lovelace. */
+const ASSET = settlementAsset(process.env.X402_ASSET)
 const PUBLIC_URL = (process.env.X402_PUBLIC_URL || `http://127.0.0.1:${PORT}`).replace(/\/$/, '')
 const ORIGINS = (process.env.X402_ALLOWED_ORIGINS || 'https://finality-cardano.vercel.app,http://localhost:3000')
   .split(',')

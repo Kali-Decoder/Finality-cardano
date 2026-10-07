@@ -104,7 +104,11 @@ const SEEDS: EndpointSeed[] = [
     description: 'On-chain token USD prices',
     availabilityTrack: 'durable',
     limits: { ids: 50 },
-    requestExample: { ids: 'bitcoin,ethereum' },
+    // Live token_price needs a real contract — WETH on Ethereum.
+    requestExample: {
+      network: 'eth',
+      addresses: '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2',
+    },
   },
   {
     operationId: 'market.fearGreed',
@@ -212,7 +216,10 @@ const SEEDS: EndpointSeed[] = [
     description: 'Cardano address intelligence (Blockfrost)',
     availabilityTrack: 'durable',
     limits: {},
-    requestExample: { address: 'addr_test1...' },
+    requestExample: {
+      address:
+        'addr_test1qpw7euev3vk3rx3j8etky36j3qj5rdwurnyw2pmxkq00vhjw30738vaw6ugqzsm4xfq707gsx5awnjuxfn3yftflzf8qa7n27w',
+    },
   },
   {
     operationId: 'onchain.cardanoPortfolio',
@@ -221,7 +228,10 @@ const SEEDS: EndpointSeed[] = [
     description: 'ADA and native asset portfolio',
     availabilityTrack: 'durable',
     limits: {},
-    requestExample: { address: 'addr_test1...' },
+    requestExample: {
+      address:
+        'addr_test1qpw7euev3vk3rx3j8etky36j3qj5rdwurnyw2pmxkq00vhjw30738vaw6ugqzsm4xfq707gsx5awnjuxfn3yftflzf8qa7n27w',
+    },
   },
   {
     operationId: 'onchain.cardanoAsset',
@@ -230,7 +240,10 @@ const SEEDS: EndpointSeed[] = [
     description: 'Native asset metadata',
     availabilityTrack: 'durable',
     limits: {},
-    requestExample: { asset: 'policyIdAssetNameHex' },
+    // Preprod USDM (Mehen) unit — concatenated policy + asset name hex
+    requestExample: {
+      asset: '16a55b2a349361ff88c03788f93e1e966e5d689605d044fef722ddde0014df10745553444d',
+    },
   },
   {
     operationId: 'onchain.cardanoTip',

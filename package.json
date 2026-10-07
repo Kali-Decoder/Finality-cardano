@@ -17,7 +17,8 @@
     "check:discovery": "tsx --env-file=.env.local scripts/check-discovery.ts",
     "buyer:generate": "tsx --env-file=x402-server/.env scripts/preprod-buyer.ts generate",
     "buyer:balance": "tsx --env-file=x402-server/.env scripts/preprod-buyer.ts balance",
-    "buyer:buy": "tsx --env-file=x402-server/.env scripts/preprod-buyer.ts buy"
+    "buyer:buy": "tsx --env-file=x402-server/.env scripts/preprod-buyer.ts buy",
+    "demo:burst": "tsx --env-file=x402-server/.env scripts/demo-burst.ts"
   },
   "dependencies": {
     "@harmoniclabs/buildooor": "^0.2.9",

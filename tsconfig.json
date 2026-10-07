@@ -38,6 +38,9 @@
   "exclude": [
     "node_modules",
     "hardhat.config.ts",
-    "precise.fun"
+    "precise.fun",
+    "x402",
+    "x402-server",
+    "scripts"
   ]
 }

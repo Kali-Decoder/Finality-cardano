@@ -7,7 +7,7 @@
 const merchantBase = (
   process.env.X402_PUBLIC_URL ||
   process.env.X402_SERVER_URL ||
-  'http://127.0.0.1:4021'
+  'https://x402-server-w7qy.onrender.com'
 ).replace(/\/$/, '')
 
 async function main() {

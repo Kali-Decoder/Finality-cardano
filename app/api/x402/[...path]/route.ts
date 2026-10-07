@@ -1,7 +1,7 @@
 import type { NextRequest } from 'next/server'
 
 export const dynamic='force-dynamic'
-const merchant=(process.env.X402_SERVER_URL||'https://finality-x402-backend.onrender.com').replace(/\/$/,'')
+const merchant=(process.env.X402_SERVER_URL||'https://x402-server-w7qy.onrender.com').replace(/\/$/,'')
 
 async function proxy(request:NextRequest,{params}:{params:Promise<{path:string[]}>}){
   const {path}=await params

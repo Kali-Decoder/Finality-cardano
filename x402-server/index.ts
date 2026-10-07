@@ -19,7 +19,7 @@ const PAY_TO = process.env.X402_PAYTO_ADDRESS || process.env.NEXT_PUBLIC_X402_PA
 const NETWORK = (process.env.X402_NETWORK || 'cardano:preprod') as 'cardano:preprod'
 const ASSET = process.env.X402_ASSET || 'lovelace'
 const PUBLIC_URL = (process.env.X402_PUBLIC_URL || `http://127.0.0.1:${PORT}`).replace(/\/$/, '')
-const ORIGINS = (process.env.X402_ALLOWED_ORIGINS || 'http://localhost:3000')
+const ORIGINS = (process.env.X402_ALLOWED_ORIGINS || 'https://finality-cardano.vercel.app,http://localhost:3000')
   .split(',')
   .map((s) => s.trim())
   .filter(Boolean)

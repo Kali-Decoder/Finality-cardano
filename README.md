@@ -125,12 +125,14 @@ npm run dev              # Next.js UI only
 
 | Surface | URL |
 |---------|-----|
-| Landing | http://localhost:3000 |
-| Explore | http://localhost:3000/explore |
+| Production | https://finality-cardano.vercel.app |
+| Landing (local) | http://localhost:3000 |
+| Explore | http://localhost:3000/explore · https://finality-cardano.vercel.app/explore |
 | Run (paid calls) | http://localhost:3000/explore/run |
 | Live on-chain hits | http://localhost:3000/explore/live |
-| Merchant health | http://127.0.0.1:4021/health |
-| Catalog | http://127.0.0.1:4021/v1/catalog |
+| Merchant (Render) | https://x402-server-w7qy.onrender.com |
+| Merchant health | https://x402-server-w7qy.onrender.com/health |
+| Catalog | https://x402-server-w7qy.onrender.com/v1/catalog |
 | Proxied catalog | http://localhost:3000/api/x402/v1/catalog |
 
 Verify Cardano 402 shape:
@@ -149,7 +151,7 @@ npm run check:discovery
 | `X402_FACILITATOR_URL` | Empty → `localFacilitator` |
 | `BLOCKFROST_API_KEY` | Tx build, verify, settle, on-chain routes |
 | `NETWORK` / `BACKENDS` | `preprod` / `blockfrost` |
-| `X402_SERVER_URL` | Next proxy target (local: `http://127.0.0.1:4021`) |
+| `X402_SERVER_URL` | Next proxy target (`https://x402-server-w7qy.onrender.com`) |
 | `NEXT_PUBLIC_X402_*` | Public network + payTo for UI |
 
 Full list: [.env.example](.env.example).

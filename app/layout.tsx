@@ -21,7 +21,7 @@ const serif = Instrument_Serif({
 })
 const hand = Caveat({ subsets: ['latin'], weight: ['500', '700'], variable: '--font-hand', display: 'swap' })
 
-const SITE = 'https://finality.accuracy.wtf'
+const SITE = process.env.NEXT_PUBLIC_APP_URL || 'https://finality-cardano.vercel.app'
 
 export const metadata: Metadata = {
   metadataBase: new URL(SITE),

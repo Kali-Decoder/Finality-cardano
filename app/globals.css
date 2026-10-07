@@ -813,6 +813,36 @@ a {
   }
 }
 
+/* Connect-wallet picker — portaled to body so nav backdrop-filter cannot trap it */
+.wallet-connect-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+  background: rgba(19, 39, 28, 0.5);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  overflow-y: auto;
+}
+.wallet-connect-modal {
+  width: 100%;
+  max-width: 32rem;
+  max-height: min(90vh, 720px);
+  overflow-y: auto;
+  margin: auto;
+  background: #fbf9f4;
+  color: #13271c;
+  border-radius: 28px;
+  border: 1px solid #e7e2d6;
+  box-shadow:
+    0 2px 4px rgba(19, 39, 28, 0.04),
+    0 28px 64px -28px rgba(19, 39, 28, 0.32);
+  padding: 28px;
+}
+
 /* Connected wallet cluster in nav / dashboard header */
 .wallet-nav {
   display: inline-flex;

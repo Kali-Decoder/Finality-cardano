@@ -18,17 +18,19 @@ npm run dev:all    # merchant :4021 + UI :3000
 
 | Surface | URL |
 |---|---|
-| Landing | http://localhost:3000 |
-| Explore | http://localhost:3000/explore |
-| Run paid calls | http://localhost:3000/explore/run |
-| Live payTo feed | http://localhost:3000/explore/live |
-| Merchant health | http://127.0.0.1:4021/health |
-| Catalog | http://127.0.0.1:4021/v1/catalog |
-| OpenAPI | http://127.0.0.1:4021/v1/openapi.json |
+| Production | https://finality-cardano.vercel.app |
+| Landing (local) | http://localhost:3000 |
+| Explore | https://finality-cardano.vercel.app/explore |
+| Run paid calls | https://finality-cardano.vercel.app/explore/run |
+| Live payTo feed | https://finality-cardano.vercel.app/explore/live |
+| Merchant (Render) | https://x402-server-w7qy.onrender.com |
+| Merchant health | https://x402-server-w7qy.onrender.com/health |
+| Catalog | https://x402-server-w7qy.onrender.com/v1/catalog |
+| OpenAPI | https://x402-server-w7qy.onrender.com/v1/openapi.json |
 
 The UI calls **`/api/x402/*`**, a same-origin proxy that preserves x402 payment headers.
 
-Hosted deployments may use different merchant URLs; local development should set **`X402_SERVER_URL=http://127.0.0.1:4021`**.
+Production proxy: **`X402_SERVER_URL=https://x402-server-w7qy.onrender.com`**. Local merchant only: `http://127.0.0.1:4021`.
 
 ## User journey
 

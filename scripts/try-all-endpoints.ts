@@ -11,7 +11,7 @@ import { createBridgePayHandler } from '../x402/srv/client/pay-handlers'
 import { readSettlement } from '../x402/srv/client/protocol'
 import * as bridge from '../x402/srv/bridge'
 
-const MERCHANT = (process.env.X402_PUBLIC_URL || 'http://127.0.0.1:4021').replace(/\/$/, '')
+const MERCHANT = (process.env.X402_PUBLIC_URL || 'https://x402-server-w7qy.onrender.com').replace(/\/$/, '')
 const WALLET_PATH = resolve(process.env.WALLET_FILE || 'scripts/preprod-buyer-wallet.json')
 
 type CatalogEndpoint = {

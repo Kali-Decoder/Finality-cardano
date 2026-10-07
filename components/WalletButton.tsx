@@ -1,6 +1,7 @@
 'use client'
 
 import { useState } from 'react'
+import { createPortal } from 'react-dom'
 import { Check, Copy, ExternalLink, X } from 'lucide-react'
 import { AdaBalance } from '@/components/brand/AssetIcons'
 import { useCardanoWallet, KNOWN_WALLETS } from '@/lib/cardano/wallet'
@@ -82,22 +83,15 @@ export default function WalletButton() {
       >
         {status === 'connecting' ? 'Connecting…' : 'Connect wallet'}
       </button>
-      {open && (
+      {open &&
+        typeof document !== 'undefined' &&
+        createPortal(
         <div
-          className="fixed inset-0 z-[100] grid place-items-center p-4"
-          style={{ background: 'rgba(19,39,28,0.5)', backdropFilter: 'blur(8px)' }}
+          className="wallet-connect-overlay"
           onClick={() => setOpen(false)}
         >
           <div
-            className="w-full max-w-lg max-h-[min(90vh,720px)] overflow-y-auto"
-            style={{
-              background: '#FBF9F4',
-              color: '#13271C',
-              borderRadius: 28,
-              border: '1px solid #E7E2D6',
-              boxShadow: '0 2px 4px rgba(19,39,28,0.04), 0 28px 64px -28px rgba(19,39,28,0.32)',
-              padding: 28,
-            }}
+            className="wallet-connect-modal"
             onClick={(e) => e.stopPropagation()}
             role="dialog"
             aria-modal="true"
@@ -272,7 +266,8 @@ export default function WalletButton() {
               Preprod ADA balance appears in Dashboard → Settings after you connect.
             </p>
           </div>
-        </div>
+        </div>,
+        document.body,
       )}
     </>
   )

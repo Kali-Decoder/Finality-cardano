@@ -1,6 +1,6 @@
 # Finality Market Intelligence API (Cardano)
 
-Merchant: local **`x402-server`** (`http://127.0.0.1:4021`). Explore UI proxies via **`/api/x402`**.
+Merchant: **https://x402-server-w7qy.onrender.com** (local: `http://127.0.0.1:4021`). Explore UI proxies via **`/api/x402`**.
 
 **Network:** `cardano:preprod` · **Asset:** `lovelace` (ADA) · **Scheme:** x402 exact
 
@@ -45,7 +45,7 @@ npm run dev            # :3000 → proxy /api/x402
 ```
 
 ```bash
-curl -i 'http://127.0.0.1:4021/v1/market/quotes?symbols=BTC'
+curl -i 'https://x402-server-w7qy.onrender.com/v1/market/quotes?symbols=BTC'
 # → HTTP 402, network cardano:preprod, asset lovelace
 ```
 

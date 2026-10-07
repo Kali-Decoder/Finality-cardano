@@ -5,7 +5,7 @@
  *   npx tsx --env-file=x402-server/.env scripts/preprod-buyer.ts balance
  *   npx tsx --env-file=x402-server/.env scripts/preprod-buyer.ts buy [url]
  *
- * Default buy URL: http://127.0.0.1:4021/v1/demo/ping
+ * Default buy URL: https://x402-server-w7qy.onrender.com/v1/demo/ping
  */
 import { randomBytes } from 'node:crypto'
 import { existsSync, readFileSync, writeFileSync } from 'node:fs'
@@ -26,7 +26,7 @@ import * as bridge from '../x402/srv/bridge'
 import type { PaymentRequirements } from '../x402/srv/core/types'
 
 const WALLET_PATH = resolve(process.env.WALLET_FILE || 'scripts/preprod-buyer-wallet.json')
-const DEFAULT_URL = process.env.BUY_URL || 'http://127.0.0.1:4021/v1/demo/ping'
+const DEFAULT_URL = process.env.BUY_URL || 'https://x402-server-w7qy.onrender.com/v1/demo/ping'
 const ADA = 1_000_000n
 
 type WalletFile = { privateKeyHex: string; address: string }

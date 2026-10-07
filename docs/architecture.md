@@ -136,9 +136,9 @@ When upstream fails and `ALLOW_MOCK_FALLBACK=true`, handlers return schema-valid
 
 | Concern | Local dev | Production pattern |
 |---------|-----------|-------------------|
-| UI | `localhost:3000` | Vercel / static+server Next |
-| Merchant | `127.0.0.1:4021` | Container (Render, Fly, etc.) |
-| Proxy | `X402_SERVER_URL=http://127.0.0.1:4021` | Internal URL or public merchant host |
+| UI | `localhost:3000` | https://finality-cardano.vercel.app |
+| Merchant | `127.0.0.1:4021` | https://x402-server-w7qy.onrender.com |
+| Proxy | `X402_SERVER_URL` → Render merchant | `https://x402-server-w7qy.onrender.com` |
 | Chain | Preprod | Preprod until explicit mainnet decision |
 | Secrets | `.env.local`, `x402-server/.env` | Host env / secret manager |
 

@@ -34,9 +34,9 @@ if [[ -f .env.local ]]; then
 fi
 
 # Prefer local merchant for Next proxy when developing
-if grep -q '^X402_SERVER_URL=https://finality-x402-backend' .env.local 2>/dev/null; then
-  echo "Note: .env.local still points X402_SERVER_URL at the hosted merchant."
-  echo "      For local Cardano x402, set X402_SERVER_URL=http://127.0.0.1:4021"
+if grep -q '^X402_SERVER_URL=https://x402-server-w7qy.onrender.com' .env.local 2>/dev/null; then
+  echo "Note: .env.local points X402_SERVER_URL at the Render merchant."
+  echo "      For a local merchant, set X402_SERVER_URL=http://127.0.0.1:4021"
 fi
 
 bf="$(grep -E '^BLOCKFROST_API_KEY=' x402-server/.env | tail -1 | cut -d= -f2- || true)"

@@ -49,7 +49,7 @@ const HOW = [
   },
   {
     n: '03',
-    h: 'Sign the exact USDM amount',
+    h: 'Sign the exact ADA amount',
     s: 'Server builds the tx; you only sign.',
     p: (
       <>
@@ -79,7 +79,7 @@ const CATALOG = [
     name: 'Market data',
     count: '07',
     tagline: 'Quotes, candles, trending, categories, token prices, fear & greed.',
-    price: 'from 0.01 USDM',
+    price: 'from 0.01 ADA',
     live: true,
   },
   {
@@ -87,7 +87,7 @@ const CATALOG = [
     name: 'Intelligence',
     count: '06',
     tagline: 'Signals, technicals, reports, volume, events, and backtests.',
-    price: 'from 0.01 USDM',
+    price: 'from 0.01 ADA',
     live: true,
   },
   {
@@ -95,7 +95,7 @@ const CATALOG = [
     name: 'AI & agents',
     count: '04',
     tagline: 'Chat, decisions, briefings, and strategy parse, one paid call.',
-    price: 'from 0.01 USDM',
+    price: 'from 0.01 ADA',
     live: true,
   },
   {
@@ -103,7 +103,7 @@ const CATALOG = [
     name: 'Cardano on-chain',
     count: '22',
     tagline: 'Addresses, assets, scripts, blocks, and mempool-style chain reads.',
-    price: 'from 0.01 USDM',
+    price: 'from 0.01 ADA',
     live: true,
   },
 ]
@@ -113,13 +113,13 @@ const STOPS: { k: string; h: string; p: string; vis: ReactNode; stat: string }[]
     k: 'Request',
     h: 'Agent or human hits the API',
     p: 'Same HTTP catalog for a dashboard user or an autonomous agent. No signup wall.',
-    vis: <span className="mf__tag">39 live endpoints</span>,
-    stat: '39 live endpoints',
+    vis: <span className="mf__tag">22 Cardano x402 routes</span>,
+    stat: '22 paid routes',
   },
   {
     k: '402',
     h: 'Merchant quotes the price',
-    p: 'Exact USDM amount on cardano:preprod. Requirements travel in PAYMENT-REQUIRED.',
+    p: 'Exact ADA amount on cardano:preprod. Requirements travel in PAYMENT-REQUIRED.',
     vis: <span className="mf__tag">x402 · exact</span>,
     stat: 'x402 v2 · exact scheme',
   },
@@ -163,10 +163,10 @@ function Hero() {
           <Rv as="p" delay={0.35}>
             <span className="hx__long">
               Finality is a pay-per-request merchant for market, AI, and Cardano data. Agents and humans hit the same
-              endpoints. Settle each call in USDM via x402 and a CIP-30 wallet. No subscriptions.
+              endpoints. Settle each call in ADA via x402 and a CIP-30 wallet. No subscriptions.
             </span>
             <span className="hx__short">
-              Market and Cardano APIs for agents. Pay per call in USDM via x402. No subscriptions.
+              Market and Cardano APIs for agents. Pay per call in ADA via x402. No subscriptions.
             </span>
           </Rv>
           <Rv className="hx__cta" delay={0.5}>
@@ -197,16 +197,16 @@ function Protocol() {
           <span className="label">
             <span className="n">01</span>The protocol
           </span>
-          <SplitLines text="HTTP 402, settled in USDM on Cardano." accent="USDM" />
+          <SplitLines text="HTTP 402, settled in ADA on Cardano." accent="ADA" />
           <Rv as="p" className="lede">
-            Finality is a pay-per-request merchant on Cardano. Unpaid calls get a 402 with exact USDM requirements;
+            Finality is a pay-per-request merchant on Cardano. Unpaid calls get a 402 with exact ADA requirements;
             your CIP-30 wallet signs once; @odatano/x402 settles and the JSON comes back.
           </Rv>
           <div className="cf__notes">
             {[
               [
-                'Exact USDM',
-                'Every paid route quotes an exact USDM amount up front. Sign the built transaction or walk away. No open invoices.',
+                'Exact ADA',
+                'Every paid route quotes an exact ADA amount up front. Sign the built transaction or walk away. No open invoices.',
               ],
               [
                 'CIP-30 wallets',
@@ -233,14 +233,14 @@ function Protocol() {
           <div className="cf__foot">
             <p>
               <span className="mono">Live catalog</span>
-              Thirty-nine endpoints across market, intelligence, AI, and on-chain reads, each priced in USDM.
+              Twenty-two endpoints across market, intelligence, AI, and Cardano on-chain reads, each priced in ADA.
             </p>
             <div className="cf__stats mono">
               <span>
-                <b>39</b> endpoints
+                <b>22</b> endpoints
               </span>
               <span>
-                <b>~1</b> USDM min
+                <b>0.01</b> ADA from
               </span>
               <span>
                 <b>✓</b> x402 exact
@@ -287,7 +287,7 @@ function PayPath() {
       </ol>
       <Rv className="mf__bar" delay={0.2}>
         <p>
-          <b>Autonomous-ready.</b> Agents decode PAYMENT-REQUIRED, pay in USDM, and retry with PAYMENT-SIGNATURE.
+          <b>Autonomous-ready.</b> Agents decode PAYMENT-REQUIRED, pay in ADA, and retry with PAYMENT-SIGNATURE.
           No human checkout page required.
         </p>
         <span className="mf__links">
@@ -350,7 +350,7 @@ function How() {
         <span className="label">
           <span className="n">03</span>How a request works
         </span>
-        <SplitLines text="One signature. One USDM payment. One response." />
+        <SplitLines text="One signature. One ADA payment. One response." />
       </div>
       <ol className="hw__cards">
         {HOW.map((c, i) => (
@@ -431,7 +431,7 @@ function Close() {
           </span>
           <SplitLines text="Skip the monthly seat." />
           <Rv as="p" className="lede">
-            Connect a Cardano wallet, pick an endpoint, and settle the call in USDM. Built for humans and agents on
+            Connect a Cardano wallet, pick an endpoint, and settle the call in ADA. Built for humans and agents on
             x402.
           </Rv>
           <Rv delay={0.15} className="hx__cta" style={{ marginTop: 28 }}>
@@ -443,7 +443,7 @@ function Close() {
             </Link>
           </Rv>
           <p className="mono cl__fine" style={{ marginTop: 20 }}>
-            Preprod USDM · CIP-30 · no card · no subscription
+            Cardano Preprod · lovelace · CIP-30 · no subscription
           </p>
         </div>
         <div className={`cl__art${seen ? ' in' : ''}`} ref={ref}>

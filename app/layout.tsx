@@ -27,7 +27,7 @@ export const metadata: Metadata = {
   metadataBase: new URL(SITE),
   title: { default: 'Finality · Pay-per-request APIs on Cardano', template: '%s · Finality' },
   description:
-    'Pro market, AI, and Cardano on-chain APIs for people and agents. Pay USDM per request via x402. No monthly plans, no API keys.',
+    'Pro market, AI, and Cardano on-chain APIs for people and agents. Pay ADA per request via x402 on Cardano Preprod. No monthly plans, no API keys.',
   icons: { icon: '/favicon.svg', apple: `${SITE}/logo.webp` },
   openGraph: {
     siteName: 'Finality',
@@ -38,7 +38,7 @@ export const metadata: Metadata = {
     url: SITE,
     images: [{ url: `${SITE}/og.png`, width: 1280, height: 720, alt: 'Finality' }],
   },
-  keywords: ['Finality', 'Cardano', 'x402', 'USDM', 'CIP-30', 'pay per request', 'agents'],
+  keywords: ['Finality', 'Cardano', 'x402', 'lovelace', 'CIP-30', 'pay per request', 'agents'],
 }
 
 export const viewport: Viewport = {

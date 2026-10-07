@@ -1,54 +1,195 @@
-# Finality (Cardano)
+# Finality — Cardano x402 Market Intelligence
 
-Pay-per-call market, AI, and Cardano on-chain intelligence. Each request settles in **ADA (lovelace)** on **Cardano Preprod** via x402 (`@odatano/x402`). Verify and settle run in-process on the merchant (`localFacilitator` + Blockfrost).
+Pay-per-call HTTP APIs for market data, AI analysis, and **Cardano on-chain reads**. Humans use **CIP-30** (Lace / Nami on Preprod). Agents use the same catalog with their own signer. Every paid call settles in **lovelace (ADA)** on **Cardano Preprod** via the **x402** protocol (`@odatano/x402`).
+
+No subscriptions. No API keys for payment. No custodial keys in the app.
+
+## What you get
+
+| Area | Examples |
+|------|----------|
+| Market | Quotes, candles, trending, fear & greed |
+| Intelligence | Signals, technicals, reports, backtests |
+| Agents / AI | Decisions, briefings, strategy parse, chat |
+| Cardano | Address, portfolio, asset, tip, health (Blockfrost) |
+
+Catalog and prices: `GET /v1/catalog` on the merchant.
+
+## Architecture
+
+```mermaid
+flowchart LR
+  subgraph browser["Browser / agent"]
+    W[CIP-30 wallet]
+    C[x402 client loop]
+  end
+
+  subgraph next["Next.js — :3000"]
+    UI[Explore UI]
+    PX["/api/x402/* proxy"]
+    LIVE["/api/live-txs"]
+  end
+
+  subgraph merchant["x402-server — :4021"]
+    MW[x402Middleware]
+    PI["POST /pay/intent"]
+    H[Handlers + providers]
+    LF[localFacilitator]
+  end
+
+  subgraph cardano["Cardano Preprod"]
+    BF[Blockfrost]
+    CH[Chain]
+  end
+
+  UI --> PX
+  UI --> LIVE
+  C --> PX
+  PX --> merchant
+  W -->|signTx| C
+  PI --> BF
+  MW --> LF
+  LF --> BF
+  LF --> CH
+  MW --> H
+  LIVE --> BF
+```
+
+**Request path (paid call)**
+
+1. Unpaid `GET/POST /v1/...` → **HTTP 402** + base64 **`PAYMENT-REQUIRED`** (`cardano:preprod`, asset `lovelace`, exact amount, `payTo`).
+2. Browser: `POST /pay/intent` with buyer bech32 + requirement → unsigned tx CBOR.
+3. Wallet signs via CIP-30; client retries with **`PAYMENT-SIGNATURE`**.
+4. Merchant **`localFacilitator`** verifies and submits settlement through **`@odatano/core`** + **Blockfrost**.
+5. Handler runs; response includes JSON envelope + **`PAYMENT-RESPONSE`** receipt.
+
+See [docs/architecture.md](docs/architecture.md) for module layout, env vars, and deployment notes.
+
+## Repository layout
+
+```text
+app/                    Next.js — landing, Explore dashboard, API routes
+  api/x402/[...path]/   Same-origin proxy to merchant (preserves x402 headers)
+  api/live-txs/         Blockfrost feed for payTo address (live table)
+  explore/              Run, endpoints, transactions, live, settings
+lib/
+  cardano/              CIP-30 connector, network config
+  x402/                 Browser paid-fetch (x402Fetch + /pay/intent)
+  providers/            Market + mock fallbacks
+  dashboard/            Catalog labels, local tx history (browser)
+x402-server/            Cardano x402 resource server (Express)
+  index.ts              CORS, public routes, middleware, handlers
+  registry.ts           Endpoint catalog + lovelace prices
+  handlers.ts           Provider calls + response envelope
+x402/                   Vendored @odatano/x402 (srv client, middleware, tests)
+```
 
 ## Stack
 
-| Layer | Role |
-|-------|------|
-| Next.js (`app/`) | Landing + Explore (CIP-30, catalog, Run) |
-| `/api/x402/*` | Proxy → local merchant |
-| `x402-server/` | Cardano x402 resource server (402 → settle → handler) |
-| Settlement | In-process `@odatano/x402` (`localFacilitator` + Blockfrost) |
-| Wallets | Lace / Nami on Preprod |
+| Layer | Technology |
+|-------|------------|
+| UI | Next.js, React, Tailwind |
+| Merchant | Express, `@odatano/x402`, `@odatano/core` |
+| Payment network | Cardano Preprod (`cardano:preprod`) |
+| Asset | `lovelace` (ADA) |
+| Indexer | Blockfrost (`NETWORK=preprod`) |
+| Wallets | Lace, Nami (CIP-30, `networkId = 0`) |
+| Settlement | In-process `localFacilitator` (leave `X402_FACILITATOR_URL` empty) |
 
 ## Quick start
 
 ```bash
 cp .env.example .env.local
 cp .env.example x402-server/.env
-# set BLOCKFROST_API_KEY and X402_PAYTO_ADDRESS in both
-
-npm install
-npm run dev:all   # merchant :4021 + Next :3000
 ```
 
-Or separately:
+Set in **both** `.env.local` and `x402-server/.env`:
+
+- `BLOCKFROST_API_KEY` — Preprod project key from [blockfrost.io](https://blockfrost.io)
+- `X402_PAYTO_ADDRESS` — your Preprod receive address (`addr_test1…`)
+- `NEXT_PUBLIC_X402_PAYTO` — same address (browser display)
+
+Leave `X402_FACILITATOR_URL` **empty** for in-process Cardano settlement.
 
 ```bash
-npm run dev:merchant
-npm run dev:frontend
+npm install
+npm run dev:all          # merchant :4021 + Next :3000
+```
+
+Or run separately:
+
+```bash
+npm run dev:merchant     # Cardano x402 merchant
+npm run dev              # Next.js UI only
 ```
 
 | Surface | URL |
 |---------|-----|
-| App | http://localhost:3000 |
+| Landing | http://localhost:3000 |
 | Explore | http://localhost:3000/explore |
+| Run (paid calls) | http://localhost:3000/explore/run |
+| Live on-chain hits | http://localhost:3000/explore/live |
 | Merchant health | http://127.0.0.1:4021/health |
 | Catalog | http://127.0.0.1:4021/v1/catalog |
+| Proxied catalog | http://localhost:3000/api/x402/v1/catalog |
 
-## Payment flow
+Verify Cardano 402 shape:
 
-1. Client hits a paid route unpaid → **HTTP 402** + `PAYMENT-REQUIRED` (`cardano:preprod`, lovelace).
-2. `POST /pay/intent` builds an unsigned tx; CIP-30 wallet signs.
-3. Client retries with payment proof; the merchant verifies and settles on Cardano.
-4. Merchant returns data + `PAYMENT-RESPONSE`.
+```bash
+npm run check:discovery
+```
 
-Prices are **≥ 1 USDM** so lovelace outputs clear Cardano min-UTxO.
+## Environment (Cardano)
 
-## Docs
+| Variable | Purpose |
+|----------|---------|
+| `X402_PAYTO_ADDRESS` | Merchant receive address (Preprod) |
+| `X402_NETWORK` | `cardano:preprod` |
+| `X402_ASSET` | `lovelace` |
+| `X402_FACILITATOR_URL` | Empty → `localFacilitator` |
+| `BLOCKFROST_API_KEY` | Tx build, verify, settle, on-chain routes |
+| `NETWORK` / `BACKENDS` | `preprod` / `blockfrost` |
+| `X402_SERVER_URL` | Next proxy target (local: `http://127.0.0.1:4021`) |
+| `NEXT_PUBLIC_X402_*` | Public network + payTo for UI |
 
-- [Product guide](docs/final-product.md)
-- [API endpoints](docs/api-endpoints.md)
-- [Implementation contract](docs/final_implementation.md)
-- [CIP-30 wallet](lib/cardano/README.md)
+Full list: [.env.example](.env.example).
+
+## Pricing
+
+Each route has a fixed **ADA** price in the registry (catalog shows two decimal places, typically **0.01–0.10 ADA** per call). Settlement uses the matching **lovelace** amount on chain.
+
+**Note:** Very small outputs can hit Cardano **min-UTxO** limits on Preprod; if settlement fails, increase lovelace in `x402-server/registry.ts` for that route.
+
+## Security
+
+- The UI **never** accepts mnemonics or private keys.
+- Browser signing only through **CIP-30**.
+- Settlement evidence is **x402** payment headers only — not custom “proof” strings.
+- **Cardano only** — no alternate L1 payment rails in this product.
+
+## Scripts
+
+| Command | Description |
+|---------|-------------|
+| `npm run dev` | Next.js dev server |
+| `npm run dev:merchant` | Cardano merchant on port 4021 |
+| `npm run dev:all` | Merchant + frontend |
+| `npm run build` | Production Next build |
+| `npm run test` | Vitest |
+| `npm run check:discovery` | Assert 402 offers `cardano:preprod` + `lovelace` |
+
+## Documentation
+
+- [Architecture](docs/architecture.md) — components, flows, deployment
+- [Product guide](docs/final-product.md) — user and agent journeys
+- [API endpoints](docs/api-endpoints.md) — routes and prices
+- [Implementation contract](docs/final_implementation.md) — rules for contributors
+- [CIP-30 wallet](lib/cardano/README.md) — Lace / Nami integration
+- [x402 protocol (vendored)](x402/docs/protocol.md) — payment scheme details
+
+## Cardano resources
+
+- [Cardano x402 overview](https://developers.cardano.org/x402/)
+- [CIP-30](https://github.com/cardano-foundation/CIPs/tree/master/CIP-0030) — dApp ↔ wallet API
+- [Blockfrost](https://blockfrost.io) — Preprod indexer
+- [Cardanoscan Preprod](https://preprod.cardanoscan.io) — explorer

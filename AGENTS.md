@@ -40,9 +40,10 @@ npm run build               # Production build
 <docs>
 
 - `README.md` — product overview
+- `docs/architecture.md` — Cardano system design
 - `docs/final-product.md` — user/agent journeys
 - `docs/api-endpoints.md` — catalog summary
-- `docs/final_implementation.md` — architecture contract
+- `docs/final_implementation.md` — contributor contract
 - `lib/cardano/README.md` — CIP-30 connector
 - `x402/docs/` — protocol / facilitator notes
 

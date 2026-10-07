@@ -25,7 +25,7 @@ export default function SettingsPage() {
       <div className="dash-head" style={{ marginBottom: 8 }}>
         <div>
           <span className="label">
-            <span className="n">05</span>Settings
+            <span className="n">06</span>Settings
           </span>
           <h1>Wallet &amp; network</h1>
           <p>Preprod balance, x402 discovery, and local session data.</p>

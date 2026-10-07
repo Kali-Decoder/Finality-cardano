@@ -16,7 +16,7 @@ import { CARDANO } from '@/lib/cardano/config'
 export default function RunClient() {
   const searchParams = useSearchParams()
   const opParam = searchParams.get('op')
-  const { activeAddress, signTx } = useCardanoWallet()
+  const { activeAddress, paymentAddresses, signTx } = useCardanoWallet()
 
   const [catalog, setCatalog] = useState<CatalogEndpoint[]>([])
   const [selected, setSelected] = useState('market.quotes')
@@ -154,7 +154,11 @@ export default function RunClient() {
       }
 
       const response = await callPaidResource(
-        { buyerBech32: activeAddress!, signTx },
+        {
+          buyerBech32: activeAddress!,
+          buyerCandidates: paymentAddresses,
+          signTx,
+        },
         path,
         init,
         setState,
@@ -175,6 +179,7 @@ export default function RunClient() {
       })
     } catch (e: any) {
       let message = e.message || 'Payment request failed'
+      message = message.replace(/^x402Fetch:\s*pay handler failed:\s*/i, '')
       if (/BLOCKFROST_API_KEY/i.test(message)) {
         message =
           'Blockfrost is not configured. Add BLOCKFROST_API_KEY=preprod_… to x402-server/.env and restart the merchant. Until then, use Demo Ping for a free local response test.'
@@ -196,7 +201,7 @@ export default function RunClient() {
         })
       }
     }
-  }, [activeAddress, blockfrostConfigured, endpoint, input, meta, signTx])
+  }, [activeAddress, blockfrostConfigured, endpoint, input, meta, paymentAddresses, signTx])
 
   return (
     <div className="dash-page">

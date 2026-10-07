@@ -14,7 +14,19 @@ export { defaultMerchantUrl as merchantUrl }
 
 export type CardanoPayContext = {
   buyerBech32: string
+  /** Extra CIP-30 used addresses to try when the primary has no / insufficient UTxOs. */
+  buyerCandidates?: string[]
   signTx: (unsignedTxCborHex: string) => Promise<string>
+}
+
+function friendlyIntentError(raw: string): string {
+  if (/no UTxOs/i.test(raw)) {
+    return 'Connected wallet address has no Preprod UTxOs on-chain. Fund this address (ADA + USDM) or reconnect the account that holds them.'
+  }
+  if (/Insufficient|not enough/i.test(raw)) {
+    return 'Not enough USDM (or ADA for fees/min-UTxO) on the connected address. Top up Preprod USDM and try again.'
+  }
+  return raw
 }
 
 async function buildAndSign(
@@ -22,20 +34,45 @@ async function buildAndSign(
   requirement: PaymentRequirements,
   onState?: (state: PaymentState) => void,
 ): Promise<{ signedTxCborHex: string; nonceRef: string }> {
-  onState?.('signing')
-  const res = await fetch(`${defaultMerchantUrl}/pay/intent`, {
-    method: 'POST',
-    headers: { 'content-type': 'application/json' },
-    body: JSON.stringify({ buyer: ctx.buyerBech32, requirement }),
-  })
-  if (!res.ok) {
-    const err = await res.json().catch(() => ({}))
-    throw new Error((err as { error?: string }).error || `pay/intent failed (${res.status})`)
+  // Stay on "requesting" until the unsigned tx exists — only then open the wallet.
+  onState?.('requesting')
+
+  const candidates = Array.from(
+    new Set(
+      [ctx.buyerBech32, ...(ctx.buyerCandidates || [])]
+        .map((a) => (a || '').trim())
+        .filter(Boolean),
+    ),
+  )
+  if (candidates.length === 0) {
+    throw new Error('Connect a Cardano wallet first')
   }
-  const intent = (await res.json()) as { unsignedTxCborHex: string; nonceRef: string }
-  const signedTxCborHex = await ctx.signTx(intent.unsignedTxCborHex)
-  onState?.('settling')
-  return { signedTxCborHex, nonceRef: intent.nonceRef }
+
+  let lastError = 'pay/intent failed'
+  for (const buyer of candidates) {
+    const res = await fetch(`${defaultMerchantUrl}/pay/intent`, {
+      method: 'POST',
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({ buyer, requirement }),
+    })
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({}))
+      lastError = String((err as { error?: string }).error || `pay/intent failed (${res.status})`)
+      // Try the next CIP-30 address when this one cannot fund the payment.
+      if (/insufficient|not enough|no utxo/i.test(lastError) && candidates.length > 1) {
+        continue
+      }
+      throw new Error(friendlyIntentError(lastError))
+    }
+
+    const intent = (await res.json()) as { unsignedTxCborHex: string; nonceRef: string }
+    onState?.('signing')
+    const signedTxCborHex = await ctx.signTx(intent.unsignedTxCborHex)
+    onState?.('settling')
+    return { signedTxCborHex, nonceRef: intent.nonceRef }
+  }
+
+  throw new Error(friendlyIntentError(lastError))
 }
 
 export function createPaidFetch(ctx: CardanoPayContext, onState?: (state: PaymentState) => void) {
@@ -43,6 +80,17 @@ export function createPaidFetch(ctx: CardanoPayContext, onState?: (state: Paymen
     errorOnFailure: true,
     pay: (requirement) => buildAndSign(ctx, requirement, onState),
   })
+}
+
+function paymentErrorMessage(error: unknown): string {
+  if (error instanceof X402PaymentError) {
+    if (error.kind === 'pay_handler_failed' && error.cause instanceof Error) {
+      return error.cause.message
+    }
+    return error.serverError || error.message || `Payment failed (${error.kind})`
+  }
+  if (error instanceof Error) return error.message
+  return String(error)
 }
 
 export async function callPaidResource(
@@ -69,9 +117,6 @@ export async function callPaidResource(
     }
   } catch (error) {
     onState?.('rejected')
-    if (error instanceof X402PaymentError) {
-      throw new Error(error.serverError || error.message || `Payment failed (${error.kind})`)
-    }
-    throw error
+    throw new Error(paymentErrorMessage(error))
   }
 }

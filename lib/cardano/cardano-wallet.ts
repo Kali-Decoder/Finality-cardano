@@ -231,57 +231,72 @@ export type WalletSession = {
 
 function createSession(key: string, walletMeta: InjectedWallet, api: Cip30Api): WalletSession {
   let closed = false
+  /** Mutable — refreshed via `enable()` before signing so the extension popup can open. */
+  let liveApi = api
 
   const guard = () => {
     if (closed) throw new Error('Wallet session is closed. Connect again.')
+  }
+
+  /** Wake the extension with a fresh CIP-30 handle (Lace/Eternl often need this after idle). */
+  const ensureApi = async () => {
+    guard()
+    try {
+      liveApi = await walletMeta.enable()
+    } catch {
+      // Keep the existing handle if silent re-enable fails (already authorized).
+    }
+    return liveApi
   }
 
   return {
     key,
     name: walletMeta.name,
     icon: walletMeta.icon || null,
-    api,
+    get api() {
+      return liveApi
+    },
 
     async getNetworkId() {
       guard()
-      return api.getNetworkId()
+      return liveApi.getNetworkId()
     },
 
     async getChangeAddress() {
       guard()
-      return addressBytesToBech32(hexToBytes(await api.getChangeAddress()))
+      return addressBytesToBech32(hexToBytes(await liveApi.getChangeAddress()))
     },
 
     async getUsedAddresses() {
       guard()
-      const addrs = (await api.getUsedAddresses()) || []
+      const addrs = (await liveApi.getUsedAddresses()) || []
       return addrs.map((h) => addressBytesToBech32(hexToBytes(h)))
     },
 
     async getRewardAddress() {
       guard()
-      const addrs = (await api.getRewardAddresses()) || []
+      const addrs = (await liveApi.getRewardAddresses()) || []
       if (!addrs.length) return null
       return addressBytesToBech32(hexToBytes(addrs[0]))
     },
 
     async getBalance() {
       guard()
-      const raw = await api.getBalance()
+      const raw = await liveApi.getBalance()
       if (!raw) return { lovelace: '0', ada: 0, assets: [], raw: null }
       return parseValue(raw)
     },
 
     async getUtxos() {
       guard()
-      const utxos = (await api.getUtxos()) || []
+      const utxos = (await liveApi.getUtxos()) || []
       return utxos.map(parseUtxo)
     },
 
     async getCollateral() {
       guard()
-      if (typeof api.getCollateral !== 'function') return []
-      const utxos = (await api.getCollateral()) || []
+      if (typeof liveApi.getCollateral !== 'function') return []
+      const utxos = (await liveApi.getCollateral()) || []
       return utxos.map(parseUtxo)
     },
 
@@ -290,20 +305,20 @@ function createSession(key: string, walletMeta: InjectedWallet, api: Cip30Api): 
      * Call `toSignedTransaction(unsigned, result)` before submit / PAYMENT-SIGNATURE.
      */
     async signTransaction(unsignedTxCborHex: string, partialSign = false) {
-      guard()
-      return api.signTx(unsignedTxCborHex, partialSign)
+      const apiNow = await ensureApi()
+      return apiNow.signTx(unsignedTxCborHex, partialSign)
     },
 
     async submitTransaction(signedTxCborHex: string) {
-      guard()
-      return api.submitTx(signedTxCborHex)
+      const apiNow = await ensureApi()
+      return apiNow.submitTx(signedTxCborHex)
     },
 
     async signMessage(addressBech32: string, message: string) {
-      guard()
+      const apiNow = await ensureApi()
       const addressHex = bytesToHex(bech32Decode(addressBech32).bytes)
       const payloadHex = bytesToHex(new TextEncoder().encode(message))
-      return api.signData(addressHex, payloadHex)
+      return apiNow.signData(addressHex, payloadHex)
     },
 
     disconnect() {

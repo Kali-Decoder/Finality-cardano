@@ -71,6 +71,8 @@ type CardanoWalletContextValue = {
   activeAddress: string | null
   activeWallet: WalletSession | null
   signTx: (unsignedTxCborHex: string) => Promise<string>
+  /** change + used addresses for `/pay/intent` retries when primary has no UTxOs */
+  paymentAddresses: string[]
 }
 
 const CardanoWalletContext = createContext<CardanoWalletContextValue | null>(null)
@@ -95,6 +97,7 @@ export function CardanoWalletProvider({ children }: { children: ReactNode }) {
   const [status, setStatus] = useState<Status>('idle')
   const [error, setError] = useState<Error | null>(null)
   const [address, setAddress] = useState<string | null>(null)
+  const [paymentAddresses, setPaymentAddresses] = useState<string[]>([])
   const [networkId, setNetworkId] = useState<number | null>(null)
   const [balance, setBalance] = useState<WalletBalance | null>(null)
   const mounted = useRef(true)
@@ -117,7 +120,11 @@ export function CardanoWalletProvider({ children }: { children: ReactNode }) {
   }, [])
 
   const applySession = useCallback(async (s: WalletSession) => {
-    const [addr, net] = await Promise.all([s.getChangeAddress(), s.getNetworkId()])
+    const [addr, net, used] = await Promise.all([
+      s.getChangeAddress(),
+      s.getNetworkId(),
+      s.getUsedAddresses().catch(() => [] as string[]),
+    ])
     let bal: WalletBalance | null = null
     try {
       bal = await s.getBalance()
@@ -127,6 +134,7 @@ export function CardanoWalletProvider({ children }: { children: ReactNode }) {
     if (!mounted.current) return
     setSession(s)
     setAddress(addr)
+    setPaymentAddresses(Array.from(new Set([addr, ...used].filter(Boolean))))
     setNetworkId(net)
     setBalance(bal)
     setStatus('connected')
@@ -200,6 +208,7 @@ export function CardanoWalletProvider({ children }: { children: ReactNode }) {
     if (session) session.disconnect()
     setSession(null)
     setAddress(null)
+    setPaymentAddresses([])
     setNetworkId(null)
     setBalance(null)
     setError(null)
@@ -307,6 +316,7 @@ export function CardanoWalletProvider({ children }: { children: ReactNode }) {
       activeAddress: address,
       activeWallet: session,
       signTx,
+      paymentAddresses,
     }),
     [
       wallets,
@@ -325,6 +335,7 @@ export function CardanoWalletProvider({ children }: { children: ReactNode }) {
       refreshWallets,
       refreshBalance,
       signTx,
+      paymentAddresses,
     ],
   )
 

@@ -8,7 +8,7 @@ import { AdaBalance, CardanoIcon, UsdmPrice } from '@/components/brand/AssetIcon
 import { useCardanoWallet } from '@/lib/cardano/wallet'
 
 export default function OverviewPage() {
-  const { connected, adaBalance, networkLabel, shortAddress } = useCardanoWallet()
+  const { connected, adaBalance, usdmBalance, networkLabel, shortAddress } = useCardanoWallet()
   const [catalog, setCatalog] = useState<CatalogEndpoint[]>([])
   const [health, setHealth] = useState<Record<string, unknown> | null>(null)
   const [txs, setTxs] = useState<DashboardTx[]>([])
@@ -125,7 +125,16 @@ export default function OverviewPage() {
             </span>
           </div>
           <h3>
-            {connected ? <AdaBalance amount={adaBalance ?? '…'} size={18} /> : 'Connect to see balance'}
+            {connected ? (
+              <span style={{ display: 'inline-flex', flexWrap: 'wrap', gap: 12, alignItems: 'center' }}>
+                <UsdmPrice amount={usdmBalance ?? '…'} size={18} />
+                <span className="mono muted" style={{ fontSize: 14, fontWeight: 500 }}>
+                  <AdaBalance amount={adaBalance ?? '…'} size={14} />
+                </span>
+              </span>
+            ) : (
+              'Connect to see balance'
+            )}
           </h3>
           <p>{connected ? shortAddress : 'Lace or Nami on Preprod. CIP-30 signing only.'}</p>
           <span className="dash-stat__foot">

@@ -9,20 +9,21 @@ Prefer official Cardano + @odatano/x402 docs and this repo’s canonical pattern
 
 ### What You're Building
 - Next.js Explore UI + CIP-30 wallet (`lib/cardano`)
-- Merchant resource server that returns HTTP 402 and settles ADA in-process via `@odatano/x402`
+- Merchant resource server that returns HTTP 402 and settles **USDM** in-process via `@odatano/x402`
 - Browser paid fetch via `@odatano/x402` / vendored `x402/srv` clients
 
 ### What You Must NEVER Do
 - Add other L1 payment rails (non-Cardano)
+- Settle paid routes in lovelace / ADA (USDM only)
 - Build or run a second facilitator
 - Accept mnemonic / private keys in the UI
 - Accept non-x402 “payment proofs” as settlement
 
 ### What You Must ALWAYS Do
-- Default network: `cardano:preprod`, asset `lovelace`
+- Default network: `cardano:preprod`, asset **USDM** (`lib/cardano/usdm.ts`)
 - Settlement: in-process `localFacilitator` (`X402_FACILITATOR_URL` stays empty) + Blockfrost
 - Use CIP-30 for browser signing; merchant builds unsigned txs (`/pay/intent`)
-- Keep docs and UI copy in Cardano terms (ADA, Preprod, Lace/Nami)
+- Keep docs and UI copy in Cardano terms (USDM, Preprod, Lace/Nami)
 
 </core_principles>
 

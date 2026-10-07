@@ -861,6 +861,15 @@ a {
   color: var(--accent-ink);
   white-space: nowrap;
 }
+.wallet-nav__bal--ada {
+  color: var(--ink-2);
+  font-weight: 600;
+}
+@media (max-width: 720px) {
+  .wallet-nav__bal--ada {
+    display: none;
+  }
+}
 .wallet-nav__sep {
   width: 1px;
   height: 14px;

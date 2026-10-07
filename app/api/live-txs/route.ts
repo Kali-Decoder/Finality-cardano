@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server'
+import { USDM_UNIT, formatUsdm, settlementAsset, sumUsdmUnits } from '@/lib/cardano/usdm'
 
 export const dynamic = 'force-dynamic'
 
@@ -22,24 +23,13 @@ function blockfrostHost() {
   return 'https://cardano-preprod.blockfrost.io/api/v0'
 }
 
-function lovelaceToAda(lovelace: string | number) {
-  const ada = Number(lovelace) / 1_000_000
-  if (!Number.isFinite(ada)) return '0'
-  return ada.toFixed(6).replace(/\.?0+$/, '')
-}
-
-function sumLovelace(amounts: Array<{ unit: string; quantity: string }>) {
-  return amounts
-    .filter((a) => a.unit === 'lovelace')
-    .reduce((sum, a) => sum + BigInt(a.quantity || '0'), 0n)
-}
-
 export async function GET() {
   const payTo =
     process.env.X402_PAYTO_ADDRESS ||
     process.env.NEXT_PUBLIC_X402_PAYTO ||
     ''
   const key = process.env.BLOCKFROST_API_KEY || ''
+  const asset = settlementAsset(process.env.X402_ASSET)
 
   if (!payTo) {
     return NextResponse.json(
@@ -54,6 +44,7 @@ export async function GET() {
         success: true,
         payTo,
         network: process.env.X402_NETWORK || 'cardano:preprod',
+        asset,
         asOf: new Date().toISOString(),
         transactions: [],
         warning: 'BLOCKFROST_API_KEY missing — live chain feed unavailable',
@@ -77,6 +68,7 @@ export async function GET() {
           success: true,
           payTo,
           network: process.env.X402_NETWORK || 'cardano:preprod',
+          asset,
           asOf: new Date().toISOString(),
           transactions: [],
         },
@@ -114,22 +106,22 @@ export async function GET() {
               txHash: row.tx_hash,
               blockHeight: row.block_height,
               blockTime: row.block_time,
-              receivedLovelace: '0',
-              receivedAda: '0',
+              receivedUsdmUnits: '0',
+              receivedUsdm: '0',
               from: [] as string[],
             }
           }
           const utxo = (await utxoRes.json()) as BfUtxo
           const received = utxo.outputs
             .filter((o) => o.address === payTo)
-            .reduce((sum, o) => sum + sumLovelace(o.amount), 0n)
+            .reduce((sum, o) => sum + sumUsdmUnits(o.amount, USDM_UNIT), 0n)
           const from = [...new Set(utxo.inputs.map((i) => i.address).filter(Boolean))]
           return {
             txHash: row.tx_hash,
             blockHeight: row.block_height,
             blockTime: row.block_time,
-            receivedLovelace: received.toString(),
-            receivedAda: lovelaceToAda(received.toString()),
+            receivedUsdmUnits: received.toString(),
+            receivedUsdm: formatUsdm(received),
             from,
           }
         } catch {
@@ -137,18 +129,14 @@ export async function GET() {
             txHash: row.tx_hash,
             blockHeight: row.block_height,
             blockTime: row.block_time,
-            receivedLovelace: '0',
-            receivedAda: '0',
+            receivedUsdmUnits: '0',
+            receivedUsdm: '0',
             from: [] as string[],
           }
         }
       }),
     )
 
-    /**
-     * Live feed reset (USDM era). Ignore older payTo hits so the table starts empty.
-     * Override with LIVE_TXS_AFTER=<unix seconds> (0 = show all) to change the cutoff.
-     */
     const afterRaw = process.env.LIVE_TXS_AFTER
     const afterEnv = afterRaw === undefined || afterRaw === '' ? NaN : Number(afterRaw)
     const afterSec =
@@ -156,12 +144,15 @@ export async function GET() {
         ? 0
         : Number.isFinite(afterEnv) && afterEnv > 0
           ? afterEnv
-          : Math.floor(Date.UTC(2026, 9, 7, 12, 0, 0) / 1000) // 2026-10-07 12:00 UTC
+          : Math.floor(Date.UTC(2026, 9, 7, 12, 0, 0) / 1000)
 
     const transactions = details
-      .filter((t) => t.receivedLovelace !== '0' && t.blockTime >= afterSec)
+      .filter((t) => t.receivedUsdmUnits !== '0' && t.blockTime >= afterSec)
       .map((t) => ({
         ...t,
+        // Keep legacy field names used by Live UI (amount displayed as USDM)
+        receivedAda: t.receivedUsdm,
+        receivedLovelace: t.receivedUsdmUnits,
         explorerUrl: `https://preprod.cardanoscan.io/transaction/${t.txHash}`,
         fromShort: t.from[0]
           ? `${t.from[0].slice(0, 12)}…${t.from[0].slice(-8)}`
@@ -174,7 +165,7 @@ export async function GET() {
         success: true,
         payTo,
         network: process.env.X402_NETWORK || 'cardano:preprod',
-        asset: process.env.X402_ASSET || 'USDM',
+        asset,
         asOf: new Date().toISOString(),
         count: transactions.length,
         transactions,

@@ -1,7 +1,7 @@
 'use client'
 
 import Link from 'next/link'
-import { AdaBalance, CardanoIcon, UsdmIcon } from '@/components/brand/AssetIcons'
+import { AdaBalance, CardanoIcon, UsdmIcon, UsdmPrice } from '@/components/brand/AssetIcons'
 import { useCardanoWallet } from '@/lib/cardano/wallet'
 import { ExternalLink } from 'lucide-react'
 import { clearTransactions } from '@/lib/dashboard/history'
@@ -14,6 +14,7 @@ export default function SettingsPage() {
     disconnect,
     adaBalance,
     lovelace,
+    usdmBalance,
     network,
     networkLabel,
     isExpectedNetwork,
@@ -40,6 +41,12 @@ export default function SettingsPage() {
         </div>
         {activeAddress && (
           <div className="dash-run__meta">
+            <div>
+              <span className="mono muted">USDM balance</span>
+              <b>
+                <UsdmPrice amount={usdmBalance != null ? usdmBalance : '…'} size={16} />
+              </b>
+            </div>
             <div>
               <span className="mono muted">ADA balance (fees)</span>
               <b>

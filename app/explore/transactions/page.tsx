@@ -110,7 +110,7 @@ export default function TransactionsPage() {
                     <span className="mono muted dash-table__sub">{new Date(tx.at).toLocaleString()}</span>
                   </td>
                   <td>
-                    <b>{tx.price} USDM</b>
+                    <b>{tx.price} ADA</b>
                   </td>
                   <td>
                     <b>{tx.title}</b>

@@ -134,7 +134,7 @@ export function QuoteArt() {
           1
         </text>
         <text x="168" y="132" fontFamily="var(--mono)" fontSize="11" fill="#66726A">
-          USDM
+          ADA
         </text>
       </g>
       {[0, 1, 2].map((k) => (
@@ -185,7 +185,7 @@ export function ReceiptArt() {
   const rows = [
     ['Wallet', 'CIP-30 signTx', '1.00'],
     ['Merchant', 'buildPayment', '—'],
-    ['Network', 'cardano:preprod', 'USDM'],
+    ['Network', 'cardano:preprod', 'ADA'],
     ['Settle', 'localFacilitator', 'tx'],
   ]
   return (
@@ -281,8 +281,8 @@ export function MarkBlock() {
 export function HeroFlow() {
   const nodes = [
     { x: 520, y: 200, label: 'REQUEST', sub: 'GET /market' },
-    { x: 720, y: 140, label: '402', sub: 'USDM quote' },
-    { x: 920, y: 200, label: 'SIGN', sub: 'CIP-30 · USDM' },
+    { x: 720, y: 140, label: '402', sub: 'ADA quote' },
+    { x: 920, y: 200, label: 'SIGN', sub: 'CIP-30 · ADA' },
     { x: 1080, y: 320, label: 'RESULT', sub: 'live JSON' },
   ]
   return (
@@ -362,7 +362,7 @@ export function HeroFlow() {
           SETTLED ON
         </text>
         <text x="110" y="48" textAnchor="middle" fill="#fff" fontFamily="var(--sans)" fontSize="18" fontWeight="650">
-          Cardano · USDM
+          Cardano · ADA
         </text>
       </g>
     </svg>

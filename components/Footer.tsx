@@ -11,7 +11,7 @@ export default function Footer() {
           <Logo size={30} light />
           <p>
             Market intelligence and Cardano on-chain data for people and agents. Pay per request in
-            USDM via x402. No subscriptions, no API keys.
+            ADA via x402. No subscriptions, no API keys.
           </p>
         </div>
         <div>
@@ -67,7 +67,7 @@ export default function Footer() {
       </div>
       <div className="foot__base mono">
         <span>© {new Date().getFullYear()} Finality</span>
-        <span>Settled in USDM on Cardano · @odatano/x402</span>
+        <span>Settled in ADA on Cardano · @odatano/x402</span>
       </div>
     </footer>
   )

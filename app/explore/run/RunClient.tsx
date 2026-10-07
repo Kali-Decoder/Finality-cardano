@@ -208,7 +208,7 @@ export default function RunClient() {
             <span className="n">02</span>Pay per call
           </span>
           <h1>Run endpoint</h1>
-          <p>Configure a paid request and settle USDM via Cardano x402.</p>
+          <p>Configure a paid request and settle ADA via Cardano x402.</p>
         </div>
       </div>
 
@@ -240,7 +240,7 @@ export default function RunClient() {
                 const m = metaFor(item.operationId)
                 return (
                   <option key={item.operationId} value={item.operationId}>
-                    {m.title} · {item.price} USDM
+                    {m.title} · {item.price} ADA
                   </option>
                 )
               })}
@@ -256,7 +256,7 @@ export default function RunClient() {
                 </div>
                 <div>
                   <span className="mono muted">Price</span>
-                  <b>{endpoint.price} USDM</b>
+                  <b>{endpoint.price} ADA</b>
                 </div>
               </div>
 
@@ -279,7 +279,7 @@ export default function RunClient() {
                   </span>
                 </div>
                 <p className="muted" style={{ margin: '10px 0 0', fontSize: 14 }}>
-                  Unpaid calls return HTTP 402. Your CIP-30 wallet signs the USDM payment; settlement is on Cardano via
+                  Unpaid calls return HTTP 402. Your CIP-30 wallet signs the ADA payment; settlement is on Cardano via
                   @odatano/x402.
                 </p>
                 <div className="mono muted" style={{ marginTop: 10, fontSize: 12, wordBreak: 'break-all' }}>
@@ -309,7 +309,7 @@ export default function RunClient() {
               {endpoint?.description || 'Choose an endpoint to preview the paid request.'}
             </p>
             <div className="dash-run__price">
-              {endpoint?.price ?? '—'} <span>USDM</span>
+              {endpoint?.price ?? '—'} <span>ADA</span>
             </div>
             <div className="mono muted" style={{ fontSize: 11, letterSpacing: '0.1em', textTransform: 'uppercase', marginTop: 8 }}>
               {CARDANO.asset} · {CARDANO.network}

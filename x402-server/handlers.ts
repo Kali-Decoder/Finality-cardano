@@ -216,23 +216,36 @@ export async function runEndpoint(ep: EndpointDef, req: Request, settlementId?: 
       case 'agent.strategyParse':
       case 'ai.chat': {
         const symbol = String(body.symbol || 'BTC').toUpperCase()
-        const candles = mockCandles(symbol, 60)
+        // Derive from live OHLCV — never mock candles for showcase.
+        const candles = await fetchMarketCandles(symbol, String(body.interval || '1h'), 60, opts)
         const closes = candles.data.map((c) => c.close)
         const last = closes[closes.length - 1] ?? 0
         const prev = closes[closes.length - 2] ?? last
         const mom = last - prev
+        const liveMeta = {
+          ...(candles.meta as unknown as Record<string, unknown>),
+          synthetic: false,
+          dataMode: 'live',
+          derivedFrom: 'live-ohlcv',
+          limitations: [
+            ...(((candles.meta as { limitations?: string[] })?.limitations) || []),
+            'Deterministic analysis over live candles (not an LLM). Not financial advice.',
+          ],
+        }
         const data =
           ep.operationId === 'ai.chat'
             ? {
-                answer: `Synthetic briefing for ${symbol}: last ${last.toFixed(2)}, momentum ${mom.toFixed(2)}. Not financial advice.`,
+                answer: `Live briefing for ${symbol}: last ${last.toFixed(2)}, momentum ${mom.toFixed(2)}. Not financial advice.`,
                 generatedByModel: false,
                 symbol,
+                price: last,
               }
             : ep.operationId === 'agent.strategyParse'
               ? {
-                  rules: { fast: Number(body.fast) || 10, slow: Number(body.slow) || 30, side: 'long' },
+                  rules: { fast: Number(body.fast) || 10, slow: Number(body.slow) || 30, side: mom >= 0 ? 'long' : 'short' },
                   text: String(body.text || ''),
                   generatedByModel: false,
+                  price: last,
                 }
               : {
                   symbol,
@@ -240,12 +253,10 @@ export async function runEndpoint(ep: EndpointDef, req: Request, settlementId?: 
                   score: Number((50 + Math.tanh(mom) * 40).toFixed(1)),
                   price: last,
                   regime: mom >= 0 ? 'bull' : 'bear',
-                  answer: `Deterministic ${ep.operationId} for ${symbol}.`,
+                  answer: `Live ${ep.operationId} for ${symbol} from current OHLCV.`,
                   generatedByModel: false,
                 }
-        return envelope(ep.operationId, data, mockMeta('model_unavailable') as unknown as Record<string, unknown>, {
-          settlementId,
-        })
+        return envelope(ep.operationId, data, liveMeta, { settlementId })
       }
       case 'onchain.cardanoTip': {
         try {

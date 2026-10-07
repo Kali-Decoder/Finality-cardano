@@ -76,6 +76,12 @@ app.use((req, res, next) => {
   next()
 })
 
+/** Live unpaid demo: skip x402 gate, still run real providers (no mock). */
+const demoLiveUnpaid = () => {
+  const v = (process.env.X402_DEMO_LIVE_UNPAID || '').trim().toLowerCase()
+  return v === '1' || v === 'true' || v === 'yes'
+}
+
 app.get('/health', (_req, res) => {
   const blockfrost = Boolean((process.env.BLOCKFROST_API_KEY || '').trim())
   res.json({
@@ -84,6 +90,8 @@ app.get('/health', (_req, res) => {
     asset: ASSET,
     facilitator: process.env.X402_FACILITATOR_URL || 'local',
     blockfrostConfigured: blockfrost,
+    demoLiveUnpaid: demoLiveUnpaid(),
+    allowMockFallback: process.env.ALLOW_MOCK_FALLBACK !== 'false',
     backends: process.env.BACKENDS || 'blockfrost',
     endpoints: ENDPOINTS.length,
     x402: 'local:@odatano/x402 (./x402/srv)',
@@ -176,6 +184,8 @@ app.use(
       const method = (ctx.method || 'GET').toUpperCase()
       const ep = findEndpoint(method, full)
       if (!ep) return null
+      // Showcase mode: unpaid but handlers still hit live CoinGecko / Blockfrost / etc.
+      if (demoLiveUnpaid()) return null
       // Local UI testing without Blockfrost: allow demo.ping unpaid so Run still returns JSON.
       // With a Preprod Blockfrost key, demo.ping stays a normal paid x402 route.
       if (
@@ -225,10 +235,17 @@ app.listen(PORT, '0.0.0.0', () => {
       payTo: `${PAY_TO.slice(0, 24)}…`,
       facilitator: process.env.X402_FACILITATOR_URL || 'local',
       blockfrostConfigured: blockfrost,
+      demoLiveUnpaid: demoLiveUnpaid(),
+      allowMockFallback: process.env.ALLOW_MOCK_FALLBACK !== 'false',
       endpoints: ENDPOINTS.length,
       x402: './x402/srv',
     }),
   )
+  if (demoLiveUnpaid()) {
+    console.warn(
+      '[x402] X402_DEMO_LIVE_UNPAID=true — routes are unpaid for live showcase (real providers, no mock). Turn off for paid USDM settlement demos.',
+    )
+  }
   if (!blockfrost) {
     console.warn(
       '[x402] BLOCKFROST_API_KEY missing — /health and 402 work, but Lace /pay/intent + settle need a Preprod Blockfrost key.',

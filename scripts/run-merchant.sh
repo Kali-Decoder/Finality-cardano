@@ -19,7 +19,7 @@ fi
 
 # Keep merchant env aligned with root .env.local for shared keys
 if [[ -f .env.local ]]; then
-  for key in BLOCKFROST_API_KEY X402_PAYTO_ADDRESS X402_NETWORK X402_ASSET NETWORK BACKENDS; do
+  for key in BLOCKFROST_API_KEY X402_PAYTO_ADDRESS X402_NETWORK X402_ASSET NETWORK BACKENDS ALLOW_MOCK_FALLBACK X402_DEMO_LIVE_UNPAID; do
     root_val="$(grep -E "^${key}=" .env.local | tail -1 | cut -d= -f2- || true)"
     merch_val="$(grep -E "^${key}=" x402-server/.env | tail -1 | cut -d= -f2- || true)"
     if [[ -n "${root_val}" && -z "${merch_val}" ]]; then

@@ -28,6 +28,7 @@ export default function RunClient() {
   const [loading, setLoading] = useState(true)
   const [showExample, setShowExample] = useState(false)
   const [blockfrostConfigured, setBlockfrostConfigured] = useState<boolean | null>(null)
+  const [demoLiveUnpaid, setDemoLiveUnpaid] = useState(false)
 
   useEffect(() => {
     let live = true
@@ -41,6 +42,9 @@ export default function RunClient() {
         setCatalog(data)
         if (healthRes && typeof healthRes.blockfrostConfigured === 'boolean') {
           setBlockfrostConfigured(healthRes.blockfrostConfigured)
+        }
+        if (healthRes && typeof healthRes.demoLiveUnpaid === 'boolean') {
+          setDemoLiveUnpaid(healthRes.demoLiveUnpaid)
         }
         const initial =
           opParam && data.some((d) => d.operationId === opParam)
@@ -76,7 +80,8 @@ export default function RunClient() {
   }, [endpoint])
 
   const busy = ['signing', 'settling', 'requesting'].includes(state)
-  const demoFree = endpoint?.operationId === 'demo.ping' && blockfrostConfigured === false
+  const unpaidLive =
+    demoLiveUnpaid || (endpoint?.operationId === 'demo.ping' && blockfrostConfigured === false)
   const runLabel =
     state === 'requesting'
       ? 'Requesting…'
@@ -84,21 +89,20 @@ export default function RunClient() {
         ? 'Approve in wallet…'
         : state === 'settling'
           ? 'Settling…'
-          : demoFree
-            ? 'Run demo'
+          : unpaidLive
+            ? 'Run live'
             : 'Pay now'
 
   const invoke = useCallback(async () => {
     if (!endpoint) return
-    const needsWallet =
-      !(endpoint.operationId === 'demo.ping' && blockfrostConfigured === false)
+    const needsWallet = !demoLiveUnpaid && !(endpoint.operationId === 'demo.ping' && blockfrostConfigured === false)
     if (needsWallet && !activeAddress) {
       setError('Connect a Cardano wallet first (Lace/Nami on Preprod).')
       return
     }
     if (needsWallet && blockfrostConfigured === false) {
       setError(
-        'BLOCKFROST_API_KEY is missing. Paid Lace settlement needs a Preprod Blockfrost project id in x402-server/.env (and .env.local), then restart npm run dev:merchant. Or run Demo Ping without Blockfrost for a free local test.',
+        'BLOCKFROST_API_KEY is missing. Paid Lace settlement needs a Preprod Blockfrost project id in x402-server/.env (and .env.local), then restart npm run dev:merchant. Or set X402_DEMO_LIVE_UNPAID=true for an unpaid live showcase.',
       )
       setState('rejected')
       return
@@ -125,15 +129,16 @@ export default function RunClient() {
         init = { ...init, headers: { 'content-type': 'application/json' }, body: JSON.stringify(parsed) }
       }
 
-      // Free local demo when Blockfrost is not configured
-      if (endpoint.operationId === 'demo.ping' && blockfrostConfigured === false) {
+      // Unpaid live showcase (real providers) or free demo.ping without Blockfrost
+      if (demoLiveUnpaid || (endpoint.operationId === 'demo.ping' && blockfrostConfigured === false)) {
         setState('requesting')
         const res = await fetch(`${merchantUrl}${path}`, init)
         const body = await res.json().catch(() => ({}))
         if (!res.ok) {
           throw new Error(
             (body as { error?: { message?: string } })?.error?.message ||
-              `Demo request failed (${res.status})`,
+              (body as { error?: string }).error ||
+              `Live request failed (${res.status})`,
           )
         }
         setState('settled')
@@ -146,9 +151,9 @@ export default function RunClient() {
           title: meta?.title || endpoint.operationId,
           method: endpoint.method,
           path: endpoint.path,
-          price: '0 (local demo)',
+          price: demoLiveUnpaid ? '0 (live showcase)' : '0 (local demo)',
           status: 'settled',
-          wallet: activeAddress || 'local-demo',
+          wallet: activeAddress || 'live-showcase',
         })
         return
       }
@@ -201,7 +206,7 @@ export default function RunClient() {
         })
       }
     }
-  }, [activeAddress, blockfrostConfigured, endpoint, input, meta, paymentAddresses, signTx])
+  }, [activeAddress, blockfrostConfigured, demoLiveUnpaid, endpoint, input, meta, paymentAddresses, signTx])
 
   return (
     <div className="dash-page">
@@ -211,14 +216,25 @@ export default function RunClient() {
             ← Overview
           </Link>
           <span className="label">
-            <span className="n">02</span>Pay per call
+            <span className="n">02</span>{demoLiveUnpaid ? 'Live showcase' : 'Pay per call'}
           </span>
           <h1>Run endpoint</h1>
-          <p>Configure a paid request and settle USDM via Cardano x402.</p>
+          <p>
+            {demoLiveUnpaid
+              ? 'Unpaid live showcase — CoinGecko / Blockfrost responses, no mock fixtures.'
+              : 'Configure a paid request and settle USDM via Cardano x402.'}
+          </p>
         </div>
       </div>
 
-      {blockfrostConfigured === false && (
+      {demoLiveUnpaid && (
+        <div className="dash-alert" style={{ marginBottom: 18 }}>
+          <b>Live showcase on.</b> Routes skip USDM settlement so demos return real provider JSON.
+          Set <span className="mono">X402_DEMO_LIVE_UNPAID=false</span> and restart the merchant for paid Preprod settlement.
+        </div>
+      )}
+
+      {blockfrostConfigured === false && !demoLiveUnpaid && (
         <div className="dash-alert" style={{ marginBottom: 18 }}>
           <b>Blockfrost not configured.</b> Lace cannot build/settle paid txs until you set{' '}
           <span className="mono">BLOCKFROST_API_KEY=preprod_…</span> in{' '}

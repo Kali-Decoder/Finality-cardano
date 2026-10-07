@@ -11,16 +11,22 @@ import {
   type Facilitator,
   type PricingContext,
 } from '../x402/srv/index'
+import { CARDANO } from '../lib/cardano/config'
 import { settlementAsset } from '../lib/cardano/usdm'
 import { ENDPOINTS, catalogProjection, findEndpoint } from './registry'
 import { runEndpoint } from './handlers'
 
-const PORT = Number(process.env.X402_SERVER_PORT || 4021)
-const PAY_TO = process.env.X402_PAYTO_ADDRESS || process.env.NEXT_PUBLIC_X402_PAYTO || ''
+const PORT = Number(process.env.X402_SERVER_PORT || process.env.PORT || 4021)
+/** Env override, otherwise the same Preprod address the Explore UI uses. */
+const PAY_TO = (process.env.X402_PAYTO_ADDRESS || process.env.NEXT_PUBLIC_X402_PAYTO || '').trim() || CARDANO.payTo
 const NETWORK = (process.env.X402_NETWORK || 'cardano:preprod') as 'cardano:preprod'
 /** USDM only — never fall back to lovelace. */
 const ASSET = settlementAsset(process.env.X402_ASSET)
-const PUBLIC_URL = (process.env.X402_PUBLIC_URL || `http://127.0.0.1:${PORT}`).replace(/\/$/, '')
+const PUBLIC_URL = (
+  process.env.X402_PUBLIC_URL ||
+  process.env.RENDER_EXTERNAL_URL ||
+  `http://127.0.0.1:${PORT}`
+).replace(/\/$/, '')
 const ORIGINS = (process.env.X402_ALLOWED_ORIGINS || 'https://finality-cardano.vercel.app,http://localhost:3000')
   .split(',')
   .map((s) => s.trim())
@@ -37,9 +43,10 @@ function makeFacilitator(): Facilitator {
   return localFacilitator()
 }
 
-if (!PAY_TO) {
-  console.error('X402_PAYTO_ADDRESS is required')
-  process.exit(1)
+if (!(process.env.X402_PAYTO_ADDRESS || process.env.NEXT_PUBLIC_X402_PAYTO || '').trim()) {
+  console.warn(
+    `[x402] X402_PAYTO_ADDRESS unset — using default Preprod payTo ${PAY_TO.slice(0, 24)}…`,
+  )
 }
 
 const app = express()
@@ -207,7 +214,7 @@ app.use((err: unknown, _req: express.Request, res: express.Response, _next: expr
   })
 })
 
-app.listen(PORT, () => {
+app.listen(PORT, '0.0.0.0', () => {
   const blockfrost = Boolean((process.env.BLOCKFROST_API_KEY || '').trim())
   console.log(
     JSON.stringify({

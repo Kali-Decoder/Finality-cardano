@@ -168,6 +168,6 @@ export default function TransactionsPage() {
 
 function statusChip(status: DashboardTx['status']) {
   if (status === 'settled') return 'live'
-  if (status === 'degraded') return 'demo'
+  if (status === 'degraded') return 'warn'
   return ''
 }

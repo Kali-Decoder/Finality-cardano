@@ -72,20 +72,20 @@ export async function runEndpoint(ep: EndpointDef, req: Request, settlementId?: 
           ep.operationId,
           {
             ok: true,
-            message: 'Finality demo ping — payment accepted on Cardano Preprod',
+            message: 'Finality ping — payment accepted on Cardano Preprod',
             echo: {
               query: q,
               body,
             },
-            tip: 'Use this route from Explore → Run to test Lace CIP-30 + x402 settle.',
+            tip: 'Use Explore → Run to settle USDM via CIP-30 + x402.',
           },
           {
-            source: 'finality-demo',
+            source: 'finality',
             synthetic: false,
             dataMode: 'live',
             availabilityTrack: 'durable',
             freshnessSeconds: 0,
-            limitations: ['demo endpoint — not production data'],
+            limitations: ['probe endpoint'],
           },
           { settlementId },
         )

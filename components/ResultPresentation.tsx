@@ -522,16 +522,16 @@ function ChatAnswer({ answer }: { answer: string; generatedByModel?: boolean }) 
   )
 }
 
-function DemoPingView({ data }: { data: Record<string, unknown> }) {
+function PingView({ data }: { data: Record<string, unknown> }) {
   return (
     <div className="space-y-4">
       <div className="border border-border bg-[color-mix(in_oklab,var(--accent)_18%,transparent)] p-5">
         <div className="flex flex-wrap items-center gap-2">
           <Badge value={data.ok ? 'VALIDATED' : 'INVALID'}>{data.ok ? 'OK' : 'Failed'}</Badge>
-          <span className="text-[11px] uppercase tracking-wider text-muted-foreground mono">demo.ping</span>
+          <span className="text-[11px] uppercase tracking-wider text-muted-foreground mono">ping</span>
         </div>
         <p className="mt-3 text-base font-semibold text-foreground leading-relaxed">
-          {String(data.message ?? 'Demo ping')}
+          {String(data.message ?? 'OK')}
         </p>
         {typeof data.tip === 'string' && (
           <p className="mt-2 text-sm text-muted-foreground leading-relaxed">{data.tip}</p>
@@ -570,7 +570,7 @@ function presentByOperation(operationId: string | undefined, data: unknown): Rea
   if (data == null) return <div className="text-sm text-muted-foreground">No data payload.</div>
 
   if (operationId === 'demo.ping' && isRecord(data)) {
-    return <DemoPingView data={data} />
+    return <PingView data={data} />
   }
 
   // Arrays at the root (quotes, assets, trending, fearGreed, candles, categories)
@@ -974,8 +974,8 @@ export function sampleResultFor(operationId: string): ResultEnvelope {
   const samples: Record<string, unknown> = {
     'demo.ping': {
       ok: true,
-      message: 'Finality demo ping — payment accepted on Cardano Preprod',
-      tip: 'Use this route from Explore → Run to test Lace CIP-30 + x402 settle.',
+      message: 'Finality ping — payment accepted on Cardano Preprod',
+      tip: 'Use Explore → Run to settle USDM via CIP-30 + x402.',
     },
     'market.quotes': [
       { symbol: 'BTC', price: 68420.55, change24h: 1.84, volume24h: 2_450_000_000 },

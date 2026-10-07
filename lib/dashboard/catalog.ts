@@ -14,11 +14,6 @@ export type CatalogEndpoint = {
 export type EndpointMeta = { title: string; category: string; use: string }
 
 export const ENDPOINT_DETAILS: Record<string, EndpointMeta> = {
-  'demo.ping': {
-    title: 'Demo Ping',
-    category: 'Demo',
-    use: 'Dummy paid route to test Lace CIP-30 + x402 settle from the UI',
-  },
   'market.quotes': { title: 'Live Quotes', category: 'Market data', use: 'Current spot price, 24h change and volume' },
   'market.assets': { title: 'Asset Search', category: 'Market data', use: 'Find and normalize supported symbols' },
   'market.candles': { title: 'Price Candles', category: 'Market data', use: 'Bounded OHLCV history for analysis' },
@@ -43,7 +38,10 @@ export const ENDPOINT_DETAILS: Record<string, EndpointMeta> = {
   'onchain.cardanoHealth': { title: 'Node Health', category: 'Cardano', use: 'Chain data provider health check' },
 }
 
-export const CATEGORY_ORDER = ['Demo', 'Market data', 'Intelligence', 'Agent tools', 'AI analyst', 'Cardano'] as const
+export const CATEGORY_ORDER = ['Market data', 'Intelligence', 'Agent tools', 'AI analyst', 'Cardano'] as const
+
+/** Hidden from Explore catalog UI (internal probe route). */
+const HIDDEN_OPERATION_IDS = new Set(['demo.ping'])
 
 export const PRO_CATEGORIES = new Set(['Intelligence', 'Agent tools', 'AI analyst'])
 
@@ -59,7 +57,8 @@ export async function fetchCatalog(): Promise<CatalogEndpoint[]> {
   const r = await fetch(`${merchantUrl}/v1/catalog`)
   const v = await r.json()
   if (!r.ok) throw new Error(v?.error?.message || `HTTP ${r.status}`)
-  return v.data ?? []
+  const rows = (v.data ?? []) as CatalogEndpoint[]
+  return rows.filter((e) => !HIDDEN_OPERATION_IDS.has(e.operationId))
 }
 
 export async function fetchHealth(): Promise<Record<string, unknown>> {

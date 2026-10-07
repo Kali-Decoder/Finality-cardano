@@ -47,7 +47,7 @@ const SEEDS: EndpointSeed[] = [
     operationId: 'demo.ping',
     method: 'GET',
     path: '/v1/demo/ping',
-    description: 'Dummy route for Lace / UI settlement tests (returns fixed JSON)',
+    description: 'Probe route for Lace / UI settlement tests (returns fixed JSON)',
     availabilityTrack: 'durable',
     limits: {},
     requestExample: {},

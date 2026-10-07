@@ -26,14 +26,21 @@ export default function RunClient() {
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(true)
   const [showExample, setShowExample] = useState(false)
+  const [blockfrostConfigured, setBlockfrostConfigured] = useState<boolean | null>(null)
 
   useEffect(() => {
     let live = true
     ;(async () => {
       try {
-        const data = await fetchCatalog()
+        const [data, healthRes] = await Promise.all([
+          fetchCatalog(),
+          fetch(`${merchantUrl}/health`).then((r) => r.json()).catch(() => null),
+        ])
         if (!live) return
         setCatalog(data)
+        if (healthRes && typeof healthRes.blockfrostConfigured === 'boolean') {
+          setBlockfrostConfigured(healthRes.blockfrostConfigured)
+        }
         const initial =
           opParam && data.some((d) => d.operationId === opParam)
             ? opParam
@@ -68,6 +75,7 @@ export default function RunClient() {
   }, [endpoint])
 
   const busy = ['signing', 'settling', 'requesting'].includes(state)
+  const demoFree = endpoint?.operationId === 'demo.ping' && blockfrostConfigured === false
   const runLabel =
     state === 'requesting'
       ? 'Requesting…'
@@ -75,14 +83,25 @@ export default function RunClient() {
         ? 'Approve in wallet…'
         : state === 'settling'
           ? 'Settling…'
-          : 'Pay now'
+          : demoFree
+            ? 'Run demo'
+            : 'Pay now'
 
   const invoke = useCallback(async () => {
-    if (!activeAddress) {
-      setError('Connect a Cardano wallet first.')
+    if (!endpoint) return
+    const needsWallet =
+      !(endpoint.operationId === 'demo.ping' && blockfrostConfigured === false)
+    if (needsWallet && !activeAddress) {
+      setError('Connect a Cardano wallet first (Lace/Nami on Preprod).')
       return
     }
-    if (!endpoint) return
+    if (needsWallet && blockfrostConfigured === false) {
+      setError(
+        'BLOCKFROST_API_KEY is missing. Paid Lace settlement needs a Preprod Blockfrost project id in x402-server/.env (and .env.local), then restart npm run dev:merchant. Or run Demo Ping without Blockfrost for a free local test.',
+      )
+      setState('rejected')
+      return
+    }
     setError('')
     setResult(null)
     setReceipt(null)
@@ -94,15 +113,47 @@ export default function RunClient() {
       if (endpoint.method === 'GET') {
         const qs = new URLSearchParams()
         for (const [k, v] of Object.entries(parsed)) {
+          if (v == null || v === '') continue
           if (Array.isArray(v)) v.forEach((x) => qs.append(k, String(x)))
+          else if (typeof v === 'object') qs.set(k, JSON.stringify(v))
           else qs.set(k, String(v))
         }
-        path += `?${qs}`
+        const q = qs.toString()
+        if (q) path += `?${q}`
       } else {
         init = { ...init, headers: { 'content-type': 'application/json' }, body: JSON.stringify(parsed) }
       }
+
+      // Free local demo when Blockfrost is not configured
+      if (endpoint.operationId === 'demo.ping' && blockfrostConfigured === false) {
+        setState('requesting')
+        const res = await fetch(`${merchantUrl}${path}`, init)
+        const body = await res.json().catch(() => ({}))
+        if (!res.ok) {
+          throw new Error(
+            (body as { error?: { message?: string } })?.error?.message ||
+              `Demo request failed (${res.status})`,
+          )
+        }
+        setState('settled')
+        setResult(body)
+        setReceipt(null)
+        saveTransaction({
+          id: `${Date.now()}`,
+          at: new Date().toISOString(),
+          operationId: endpoint.operationId,
+          title: meta?.title || endpoint.operationId,
+          method: endpoint.method,
+          path: endpoint.path,
+          price: '0 (local demo)',
+          status: 'settled',
+          wallet: activeAddress || 'local-demo',
+        })
+        return
+      }
+
       const response = await callPaidResource(
-        { buyerBech32: activeAddress, signTx },
+        { buyerBech32: activeAddress!, signTx },
         path,
         init,
         setState,
@@ -118,12 +169,17 @@ export default function RunClient() {
         path: endpoint.path,
         price: endpoint.price,
         status: response.body?.meta?.synthetic && !isProEndpoint(endpoint.operationId) ? 'degraded' : 'settled',
-        wallet: activeAddress,
+        wallet: activeAddress!,
         receipt: response.receipt,
       })
     } catch (e: any) {
-      const message = e.message || 'Payment request failed'
+      let message = e.message || 'Payment request failed'
+      if (/BLOCKFROST_API_KEY/i.test(message)) {
+        message =
+          'Blockfrost is not configured. Add BLOCKFROST_API_KEY=preprod_… to x402-server/.env and restart the merchant. Until then, use Demo Ping for a free local response test.'
+      }
       setError(message)
+      setState('rejected')
       if (endpoint) {
         saveTransaction({
           id: `${Date.now()}`,
@@ -134,12 +190,12 @@ export default function RunClient() {
           path: endpoint.path,
           price: endpoint.price,
           status: 'rejected',
-          wallet: activeAddress,
+          wallet: activeAddress || undefined,
           error: message,
         })
       }
     }
-  }, [activeAddress, endpoint, input, meta, signTx])
+  }, [activeAddress, blockfrostConfigured, endpoint, input, meta, signTx])
 
   return (
     <div className="dash-page">
@@ -155,6 +211,16 @@ export default function RunClient() {
           <p>Configure a paid request and settle USDM via Cardano x402.</p>
         </div>
       </div>
+
+      {blockfrostConfigured === false && (
+        <div className="dash-alert" style={{ marginBottom: 18 }}>
+          <b>Blockfrost not configured.</b> Lace cannot build/settle paid txs until you set{' '}
+          <span className="mono">BLOCKFROST_API_KEY=preprod_…</span> in{' '}
+          <span className="mono">x402-server/.env</span> and restart{' '}
+          <span className="mono">npm run dev:merchant</span>. Until then, run{' '}
+          <b>Demo Ping</b> — it works unpaid for local UI testing.
+        </div>
+      )}
 
       <div className="dash-run">
         <section className="dash-panel">

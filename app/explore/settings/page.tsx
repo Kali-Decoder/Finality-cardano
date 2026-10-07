@@ -4,7 +4,7 @@ import Link from 'next/link'
 import { useCardanoWallet } from '@/lib/cardano/wallet'
 import { ExternalLink } from 'lucide-react'
 import { clearTransactions } from '@/lib/dashboard/history'
-import { CARDANO } from '@/lib/goplausible'
+import { CARDANO } from '@/lib/cardano/config'
 import { merchantUrl } from '@/lib/x402/client'
 
 export default function SettingsPage() {
@@ -93,7 +93,7 @@ export default function SettingsPage() {
           <InfoRow label="Protocol" value="x402 exact (Cardano)" />
           <InfoRow label="Proxy" value={merchantUrl} />
         </div>
-        <span className="chip live">Facilitator · GoPlausible</span>
+        <span className="chip live">Settlement · @odatano/x402</span>
       </section>
 
       <section className="dash-panel" style={{ display: 'grid', gap: 10, marginBottom: 18 }}>
@@ -103,8 +103,7 @@ export default function SettingsPage() {
           ['OpenAPI', `${merchantUrl}/v1/openapi.json`],
           ['Health', `${merchantUrl}/health`],
           ['Info', `${merchantUrl}/info`],
-          ['Leaderboard', CARDANO.leaderboard],
-          ['Merchant', CARDANO.merchant],
+          ['Cardano x402', CARDANO.docs],
         ].map(([label, href]) => (
           <a key={label} href={href} target={href.startsWith('http') ? '_blank' : undefined} rel={href.startsWith('http') ? 'noopener noreferrer' : undefined} className="dash-linkrow">
             <span className="mono muted">{label}</span>

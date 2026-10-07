@@ -5,7 +5,7 @@
 ## Platform
 - Website: https://finality.accuracy.wtf
 - API: https://finality-x402-backend.onrender.com
-- Facilitator: https://facilitator.goplausible.xyz
+- Settlement: in-process @odatano/x402 (Cardano Preprod, lovelace)
 - Network: Cardano Preprod (`cardano:preprod`) · Asset: lovelace (ADA)
 - Protocol: x402 exact · Client: CIP-30 (Lace / Nami)
 - Tags: finality, x402, cardano
